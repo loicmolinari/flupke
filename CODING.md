@@ -1,4 +1,4 @@
-# flupke coding style
+# Flupke coding style
 
 Flupke follows the Qt conventions, see:
 - https://wiki.qt.io/Coding_Conventions
