@@ -10,14 +10,14 @@ On top of it we add the few clarifications listed below.
 
 When including Qt or Flupke headers, always prefix with the project name. Use:
 
-```c++
+```C++
 #include <QtCore/QMap>
 #include <FlupkeMetrics/applicationmonitor.h>
 ```
 
 not
 
-```c++
+```C++
 #include <QMap>
 #include <applicationmonitor.h>
 ```
@@ -25,7 +25,7 @@ not
 For readability reasons and to avoid hidden dependencies, headers should be
 included in ordered sections, separated by an empty line, as follows:
 
-```c++
+```C++
 // The project's related header (for instance here for foo.cpp).
 #include "foo.h"
 
@@ -47,7 +47,7 @@ included in ordered sections, separated by an empty line, as follows:
 #include <QtGui/private/qcolor_p.h>
 #include <FlupkeMetrics/applicationmonitor.h>
 
-// Other libraries headers.
+// Other libraries' headers.
 #include <gst/gst.h>
 #include <boost/call_traits.hpp>
 
@@ -56,8 +56,8 @@ included in ordered sections, separated by an empty line, as follows:
 #include "baz_p.h"
 ```
 
-For libraries, the "foo" inclusion variant must be used in C++ source files
-for the project's headers. The <Project/foo.h> and <Project/private/foo_p.h>
+For libraries, the `"foo"` inclusion variant must be used in C++ source files
+for the project's headers. The `<Project/foo.h>` and `<Project/private/foo_p.h>`
 inclusion variant must be used for the project's headers in private and public
 headers, wherever the header is located in the source tree. That ensures the
 inclusion of private headers by external projects won't break.
