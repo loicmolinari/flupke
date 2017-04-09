@@ -38,7 +38,7 @@ included in ordered sections, separated by an empty line, as follows:
 #include <hash_map>
 #include <vector>
 
-// Qt and Flupe headers. Try to first list QtCore and QtGui headers. Private
+// Qt and Flupke headers. Try to first list QtCore and QtGui headers. Private
 // headers come right after public headers of the same project.
 #include <QtCore/QDebug>
 #include <QtCore/QHash>

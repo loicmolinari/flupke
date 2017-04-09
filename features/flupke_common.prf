@@ -1,0 +1,35 @@
+# Linux distributions like Debian and Ubuntu package qtbase by putting their
+# distro specific flags in the env before running make (with qmake
+# bootstrapped). qtbase is then correctly built with the right flags but the
+# flags also happen to be written in Qt prf files. Since we load
+# qt_build_config.prf, our QMAKE_*FLAGS are polluted with these flags we don't
+# want (and I'm not even talking about the fact that they force GCC flags even
+# if the user choses another compiler or the fact that they set -O2 and -g in
+# the CFLAGS which conflicts with Qt debug and release options). Let's clean
+# that up.
+QMAKE_CFLAGS =
+QMAKE_CXXFLAGS =
+QMAKE_LFLAGS =
+
+# Warn about overriding virtual functions not marked with the override keyword.
+gcc:!clang {
+    !lessThan(QT_GCC_MAJOR_VERSION, 5): \
+        QMAKE_CXXFLAGS_WARN_ON += -Wsuggest-override
+} else {
+    greaterThan(QT_CLANG_MAJOR_VERSION, 3)| \
+        if(equals(QT_CLANG_MAJOR_VERSION, 3):!lessThan(QT_CLANG_MINOR_VERSION, 6)): \
+            QMAKE_CXXFLAGS_WARN_ON += -Winconsistent-missing-override
+}
+
+# Use the 2011 ISO C++ standard plus amendments. Since Qt 5.6, GNU extensions
+# are enabled by default with Clang, GCC and ICC, strict_c++ disables them.
+CONFIG += c++11
+greaterThan(QT_MAJOR_VERSION, 5)| \
+    if(equals(QT_MAJOR_VERSION, 5):!lessThan(QT_MINOR_VERSION, 6)): \
+        CONFIG += strict_c++
+
+CONFIG += no_keywords
+
+# Make all warnings into errors.
+# FIXME(loicm) Must be disabled for releases (nano version is 0).
+CONFIG += warnings_are_errors
