@@ -389,7 +389,7 @@ static void usage()
     puts("  --metrics-logging-filter <filter>  Filter metrics logging. <filter> is a list of events");
     puts("                                     separated by a comma ('window', 'process', 'frame' or '*')");
     puts("  --continuous-updates ............. Continuously update the window");
-    puts("  --quit-after-frame-count <count>.. Quit after a number of rendered frames");
+    puts("  --quit-after-frame-count <count>.. Quit after a number of rendered frames on the window");
     
     puts(" ");
     exit(1);
@@ -451,6 +451,23 @@ private slots:
 private:
     int m_count;
     int m_currentCount;
+};
+
+class ContinuousUpdater : public QObject {
+    Q_OBJECT
+public:
+    ContinuousUpdater(QQuickWindow *window)
+        : QObject(window)
+    {
+        connect(window, &QQuickWindow::frameSwapped,
+                this, &ContinuousUpdater::onFrameSwapped, Qt::DirectConnection);
+    }
+
+private slots:
+    void onFrameSwapped()
+    {
+        static_cast<QQuickWindow*>(QObject::sender())->update();
+    }
 };
 
 static void setWindowTitle(bool verbose, const QObject *topLevel, QWindow *window)
@@ -638,7 +655,7 @@ int main(int argc, char ** argv)
             } else if (lowerArgument == QLatin1String("--continuous-updates"))
                 options.continuousUpdates = true;
             else if (lowerArgument == QLatin1String("--quit-after-frame-count"))
-                options.quitAfterFrameCount = qMax(1, atoi(argv[++i]));
+                options.quitAfterFrameCount = atoi(argv[++i]);
             else if (lowerArgument == QLatin1String("-i") && i + 1 < size)
                 imports.append(arguments.at(++i));
             else if (lowerArgument == QLatin1String("-p") && i + 1 < size)
@@ -770,6 +787,8 @@ int main(int argc, char ** argv)
 
                 if (options.quitAfterFrameCount > 0)
                     new QuitAfterFrameCountListener(window.data(), options.quitAfterFrameCount);
+                if (options.continuousUpdates)
+                    new ContinuousUpdater(window.data());
 
                 if (options.fullscreen)
                     window->showFullScreen();
