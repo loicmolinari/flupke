@@ -326,10 +326,12 @@ bool QMApplicationMonitorPrivate::removeMonitor(WindowMonitor* monitor)
             m_monitors[m_monitorCount] = nullptr;
 #endif
             m_monitorsMutex.unlock();
+            
             return true;
         }
     }
     m_monitorsMutex.unlock();
+
     return false;
 }
 
@@ -364,13 +366,9 @@ void QMApplicationMonitorPrivate::stopMonitoring(WindowMonitor* monitor)
     // window monitor deletion, we schedule a render job that disconnects the
     // signals on the render thread and then request deletion on the right
     // thread with deleteLater().
-    monitor->window()->scheduleRenderJob(new WindowMonitorDeleter(q_func(), monitor),
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-        QQuickWindow::NoStage);
-#else
-        QQuickWindow::BeforeSynchronizingStage);
+    monitor->window()->scheduleRenderJob(
+        new WindowMonitorDeleter(q_func(), monitor), QQuickWindow::NoStage);
     monitor->window()->update();  // Wake up the render loop.
-#endif
 }
 
 void QMApplicationMonitorPrivate::stop()
@@ -383,11 +381,16 @@ void QMApplicationMonitorPrivate::stop()
 
     QGuiApplication::instance()->removeEventFilter(q_func());
 
+    // stopMonitoring() could possibly remove monitors in the current thread so
+    // to avoid potential deadlocks, we loop over a copy.
+    WindowMonitor* monitorsCopy[maxMonitors];
     m_monitorsMutex.lock();
-    for (int i = 0; i < m_monitorCount; ++i) {
-        stopMonitoring(m_monitors[i]);
-    }
+    int monitorCountCopy = m_monitorCount;
+    memcpy(monitorsCopy, m_monitors, m_monitorCount * sizeof(WindowMonitor*));
     m_monitorsMutex.unlock();
+    for (int i = 0; i < monitorCountCopy; ++i) {
+        stopMonitoring(monitorsCopy[i]);
+    }
 
     DASSERT(m_loggingThread);
     m_loggingThread->deref();

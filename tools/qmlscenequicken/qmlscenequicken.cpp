@@ -57,6 +57,8 @@
 #include <QtCore/QTranslator>
 #include <QtCore/QLibraryInfo>
 
+#include <QuickenMetrics/applicationmonitor.h>
+
 #ifdef QML_RUNTIME_TESTING
 class RenderStatistics
 {
@@ -158,6 +160,8 @@ struct Options
         , multisample(false)
         , coreProfile(false)
         , verbose(false)
+        , metricsOverlay(false)
+        , continuousUpdates(false)
         , applicationType(DefaultQmlApplicationType)
         , textRenderType(QQuickWindow::textRenderType())
     {
@@ -180,6 +184,11 @@ struct Options
     bool multisample;
     bool coreProfile;
     bool verbose;
+    bool metricsOverlay;
+    QString metricsLogging;
+    QString metricsLoggingFilter;
+    bool continuousUpdates;
+    int quitAfterFrameCount;
     QVector<Qt::ApplicationAttribute> applicationAttributes;
     QString translationFile;
     QmlApplicationType applicationType;
@@ -356,7 +365,7 @@ static void loadDummyDataFiles(QQmlEngine &engine, const QString& directory)
 
 static void usage()
 {
-    puts("Usage: qmlscene [options] <filename>");
+    puts("Usage: qmlscene-quicken [options] <filename>");
     puts(" ");
     puts(" Options:");
     puts("  --maximized ...................... Run maximized");
@@ -383,7 +392,16 @@ static void usage()
     puts("  -I <path> ........................ Add <path> to the list of import paths");
     puts("  -P <path> ........................ Add <path> to the list of plugin paths");
     puts("  -translation <translationfile> ... Set the language to run in");
-
+    puts(" ");
+    puts(" Quicken options:");
+    puts("  --metrics-overlay ................ Enable the metrics overlay");
+    puts("  --metrics-logging <device> ....... Enable metrics logging. <device> can be 'stdout' or a");
+    puts("                             ....... file (default is 'stdout')");
+    puts("  --metrics-logging-filter <filter>  Filter metrics logging. <filter> is a list of events");
+    puts("                                     separated by a comma ('window', 'process', 'frame' or '*')");
+    puts("  --continuous-updates ............. Continuously update the window");
+    puts("  --quit-after-frame-count <count>.. Quit after a number of rendered frames");
+    
     puts(" ");
     exit(1);
 }
@@ -419,12 +437,39 @@ private slots:
 };
 #endif
 
+class QuitAfterFrameCountListener : public QObject {
+    Q_OBJECT
+public:
+    QuitAfterFrameCountListener(QQuickWindow *window, int count)
+        : QObject(window), m_count(count), m_currentCount(0)
+    {
+        connect(window, &QQuickWindow::frameSwapped,
+                this, &QuitAfterFrameCountListener::onFrameSwapped, Qt::DirectConnection);
+    }
+    ~QuitAfterFrameCountListener()
+    {
+         QCoreApplication::instance()->quit();
+    }
+
+private slots:
+    void onFrameSwapped()
+    {
+        if (++m_currentCount >= m_count) {
+            deleteLater();
+        }
+    }
+
+private:
+    int m_count;
+    int m_currentCount;
+};
+
 static void setWindowTitle(bool verbose, const QObject *topLevel, QWindow *window)
 {
     const QString oldTitle = window->title();
     QString newTitle = oldTitle;
     if (newTitle.isEmpty()) {
-        newTitle = QLatin1String("qmlscene");
+        newTitle = QLatin1String("qmlscene-quicken");
         if (!qobject_cast<const QWindow *>(topLevel) && !topLevel->objectName().isEmpty())
             newTitle += QLatin1String(": ") + topLevel->objectName();
     }
@@ -472,6 +517,48 @@ static QQuickWindow::TextRenderType parseTextRenderType(const QString &renderTyp
     return QQuickWindow::QtTextRendering;
 }
 
+static void setQuickenMetricsOptions(Options* options) {
+    QMApplicationMonitor* applicationMonitor = QMApplicationMonitor::instance();
+    if (!options->metricsLoggingFilter.isEmpty()) {
+        QStringList filterList =
+            options->metricsLoggingFilter.split(QChar(','), QString::SkipEmptyParts);
+        QMApplicationMonitor::LoggingFilters filter = 0;
+        const int size = filterList.size();
+        for (int i = 0; i < size; ++i) {
+            if (filterList[i] == QLatin1String("*")) {
+                filter |= QMApplicationMonitor::AllEvents;
+                break;
+            } else if (filterList[i] == QLatin1String("window")) {
+                filter |= QMApplicationMonitor::WindowEvent;
+            } else if (filterList[i] == QLatin1String("process")) {
+                filter |= QMApplicationMonitor::ProcessEvent;
+            } else if (filterList[i] == QLatin1String("frame")) {
+                filter |= QMApplicationMonitor::FrameEvent;
+            } else if (filterList[i] == QLatin1String("generic")) {
+                filter |= QMApplicationMonitor::GenericEvent;
+            }
+        }
+        applicationMonitor->setLoggingFilter(filter);
+    }
+    if (!options->metricsLogging.isEmpty()) {
+        QMLogger* logger;
+        if (options->metricsLogging == QLatin1String("stdout")) {
+            logger = new QMFileLogger(stdout);
+        } else {
+            logger = new QMFileLogger(options->metricsLogging);
+        }
+        if (logger->isOpen()) {
+            applicationMonitor->installLogger(logger);
+            applicationMonitor->setLogging(true);
+        } else {
+            delete logger;
+        }
+    }
+    if (options->metricsOverlay) {
+        applicationMonitor->setOverlay(true);
+    }
+}
+
 int main(int argc, char ** argv)
 {
     Options options;
@@ -511,9 +598,9 @@ int main(int argc, char ** argv)
 #endif
     if (app.isNull())
         app.reset(new QGuiApplication(argc, argv));
-    QCoreApplication::setApplicationName(QStringLiteral("QtQmlViewer"));
-    QCoreApplication::setOrganizationName(QStringLiteral("QtProject"));
-    QCoreApplication::setOrganizationDomain(QStringLiteral("qt-project.org"));
+    QCoreApplication::setApplicationName(QStringLiteral("QmlScene (for Quicken)"));
+    QCoreApplication::setOrganizationName(QStringLiteral("Quicken"));
+    // QCoreApplication::setOrganizationDomain(QStringLiteral("qt-project.org"));
     QCoreApplication::setApplicationVersion(QLatin1String(QT_VERSION_STR));
 
     const QStringList arguments = QCoreApplication::arguments();
@@ -546,6 +633,23 @@ int main(int argc, char ** argv)
                 options.coreProfile = true;
             else if (lowerArgument == QLatin1String("--verbose"))
                 options.verbose = true;
+            else if (lowerArgument == QLatin1String("--metrics-overlay"))
+                options.metricsOverlay = true;
+            else if (lowerArgument == QLatin1String("--metrics-logging")) {
+                if (!arguments.at(i+1).startsWith(QLatin1Char('-'))
+                    && !arguments.at(i+1).endsWith(QString(".qml"))) {
+                    options.metricsLogging = QString(argv[++i]);
+                } else {
+                    options.metricsLogging = QLatin1String("stdout");
+                }
+            } else if (lowerArgument == QLatin1String("--metrics-logging-filter")) {
+                if (!arguments.at(i+1).startsWith(QLatin1Char('-'))) {
+                    options.metricsLoggingFilter = QString(argv[++i]);
+                }
+            } else if (lowerArgument == QLatin1String("--continuous-updates"))
+                options.continuousUpdates = true;
+            else if (lowerArgument == QLatin1String("--quit-after-frame-count"))
+                options.quitAfterFrameCount = qMax(1, atoi(argv[++i]));
             else if (lowerArgument == QLatin1String("-i") && i + 1 < size)
                 imports.append(arguments.at(++i));
             else if (lowerArgument == QLatin1String("-p") && i + 1 < size)
@@ -675,6 +779,9 @@ int main(int argc, char ** argv)
                 if (window->flags() == Qt::Window) // Fix window flags unless set by QML.
                     window->setFlags(Qt::Window | Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint | Qt::WindowFullscreenButtonHint);
 
+                if (options.quitAfterFrameCount > 0)
+                    new QuitAfterFrameCountListener(window.data(), options.quitAfterFrameCount);
+
                 if (options.fullscreen)
                     window->showFullScreen();
                 else if (options.maximized)
@@ -685,6 +792,8 @@ int main(int argc, char ** argv)
 
             if (options.quitImmediately)
                 QMetaObject::invokeMethod(QCoreApplication::instance(), "quit", Qt::QueuedConnection);
+
+            setQuickenMetricsOptions(&options);
 
             // Now would be a good time to inform the debug service to start listening.
 

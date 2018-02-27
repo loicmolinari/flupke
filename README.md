@@ -9,7 +9,7 @@ Linux (tested on Debian 9.3).
 
 ## Build instructions
 
-Requires Qt v5.5.1 or later.
+Requires Qt v5.6.0 or later.
 
 Build with:
 
