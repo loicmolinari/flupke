@@ -1,0 +1,12 @@
+*.moc
+*.pch
+*.obj
+.qmake.*
+.build_paths.inc
+Makefile*
+bin/
+include/
+lib/
+mkspecs/
+src/QuickenMetrics/QuickenMetrics.version
+src/QuickenMetrics/QuickenMetrics.version.in
