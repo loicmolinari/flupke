@@ -1,6 +1,7 @@
 *.moc
 *.pch
 *.obj
+*.qmlc
 .qmake.*
 .build_paths.inc
 Makefile*
