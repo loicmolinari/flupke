@@ -2,7 +2,7 @@
 
 Started as a dump of the interesting features developed for Ubuntu Touch, **Quicken** delivers additional libraries, plugins and tools for Qt Quick. Here's a quick summary of these.
 
-## QuickenMetrics library
+## QuickenMetrics library
 
 QuickenMetrics is a library to track and show real-time performance metrics of Qt Quick applications. The metrics can be displayed per windows, each QQuickWindow having different values, or logged to a file.
 
@@ -20,7 +20,7 @@ And another one showing logging to the standard output:
 
 ![metrics overlay image](https://raw.githubusercontent.com/wiki/loicmolinari/quicken/web/quicken-term.png)
 
-## qmlscene extensions
+## qmlscene extensions
 
 This is Qt's qmlscene, extended with new options:
 
@@ -62,7 +62,7 @@ Install with:
 $ make install INSTALL_ROOT=$INSTALL_DIRECTORY
 ```
 
-The Quicken repository provides a script allowing to test the uninstalled compiled binaries:
+The Quicken repository provides a script to test the uninstalled compiled binaries, which happens to be very useful for development too.
 
 ```
 $ qmake
