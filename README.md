@@ -5,7 +5,7 @@ Quicken delivers additional libraries, plugins and tools for Qt Quick.
 
 ## Supported platforms
 
-Linux (tested on Debian 9.3).
+Linux only for now.
 
 ## Build instructions
 
