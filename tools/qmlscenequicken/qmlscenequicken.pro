@@ -1,5 +1,5 @@
 TEMPLATE = app
-##TARGET = qmlscene-quicken
+TARGET = qmlscene-quicken
 QT += qml core-private gui-private quick quick-private
 qtHaveModule(widgets): QT += widgets
 CONFIG += no_import_scan c++11

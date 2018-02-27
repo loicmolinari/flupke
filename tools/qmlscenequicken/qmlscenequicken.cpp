@@ -604,7 +604,7 @@ int main(int argc, char ** argv)
 #endif
     if (app.isNull())
         app.reset(new QGuiApplication(argc, argv));
-    QCoreApplication::setApplicationName(QStringLiteral("QmlScene (for Quicken)"));
+    QCoreApplication::setApplicationName(QStringLiteral("QML Scene for Quicken"));
     QCoreApplication::setOrganizationName(QStringLiteral("Quicken"));
     // QCoreApplication::setOrganizationDomain(QStringLiteral("qt-project.org"));
     QCoreApplication::setApplicationVersion(QLatin1String(QT_VERSION_STR));

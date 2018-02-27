@@ -23,7 +23,7 @@
 #  $ qmake
 #  $ ./scripts/shell.sh
 #  [Quicken] $ make
-#  [Quicken] $ qmlscene-quicken <file>
+#  [Quicken] $ ./bin/qmlscene-quicken <file>
 
 NAME='Quicken'
 
