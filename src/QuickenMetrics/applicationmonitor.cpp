@@ -368,7 +368,6 @@ void QMApplicationMonitorPrivate::stopMonitoring(WindowMonitor* monitor)
     // thread with deleteLater().
     monitor->window()->scheduleRenderJob(
         new WindowMonitorDeleter(q_func(), monitor), QQuickWindow::NoStage);
-    monitor->window()->update();  // Wake up the render loop.
 }
 
 void QMApplicationMonitorPrivate::stop()
