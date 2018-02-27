@@ -9,7 +9,7 @@ Linux only for now.
 
 ## Build instructions
 
-Requires Qt v5.6.0 or later.
+Built with Qt v5.10.0 only for now.
 
 Build with:
 
