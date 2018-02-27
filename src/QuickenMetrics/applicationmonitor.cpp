@@ -381,8 +381,8 @@ void QMApplicationMonitorPrivate::stop()
 
     QGuiApplication::instance()->removeEventFilter(q_func());
 
-    // stopMonitoring() could possibly remove monitors in the current thread so
-    // to avoid potential deadlocks, we loop over a copy.
+    // scheduleRenderJobs() could possibly execute jobs right now we must loop
+    // over a copy to avoid deadlocks.
     WindowMonitor* monitorsCopy[maxMonitors];
     m_monitorsMutex.lock();
     int monitorCountCopy = m_monitorCount;
@@ -442,20 +442,19 @@ WindowMonitorFlagSetter::~WindowMonitorFlagSetter()
 
 void QMApplicationMonitorPrivate::setMonitoringFlags(quint32 flags)
 {
+    // scheduleRenderJobs() could possibly execute jobs right now we must loop
+    // over a copy to avoid deadlocks.
+    WindowMonitor* monitorsCopy[maxMonitors];
     m_monitorsMutex.lock();
-    for (int i = 0; i < m_monitorCount; ++i) {
-        DASSERT(m_monitors[i]);
-        DASSERT(m_monitors[i]->window());
-        m_monitors[i]->window()->scheduleRenderJob(
-            new WindowMonitorFlagSetter(m_monitors[i], flags),
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-            QQuickWindow::NoStage);
-#else
-            QQuickWindow::BeforeSynchronizingStage);
-        m_monitors[i]->window()->update();  // Wake up the render loop.
-#endif
-    }
+    int monitorCountCopy = m_monitorCount;
+    memcpy(monitorsCopy, m_monitors, m_monitorCount * sizeof(WindowMonitor*));
     m_monitorsMutex.unlock();
+    for (int i = 0; i < monitorCountCopy; ++i) {
+        DASSERT(monitorsCopy[i]);
+        DASSERT(monitorsCopy[i]->window());
+        monitorsCopy[i]->window()->scheduleRenderJob(
+            new WindowMonitorFlagSetter(monitorsCopy[i], flags), QQuickWindow::NoStage);
+    }
 }
 
 void QMApplicationMonitor::setLoggingFilter(QMApplicationMonitor::LoggingFilters filter)
