@@ -1,24 +1,24 @@
-// Copyright © 2017 Loïc Molinari <loicm@loicm.fr>
+// Copyright © 2017-2018 Loïc Molinari <loicm@loicm.fr>
 // Copyright © 2016 Canonical Ltd.
 //
-// This file is part of Flupke.
+// This file is part of Quicken.
 //
-// Flupke is free software: you can redistribute it and/or modify it under the
+// Quicken is free software: you can redistribute it and/or modify it under the
 // terms of the GNU Lesser General Public License as published by the Free
 // Software Foundation; version 3.
 //
-// Flupke is distributed in the hope that it will be useful, but WITHOUT ANY
+// Quicken is distributed in the hope that it will be useful, but WITHOUT ANY
 // WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 // A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 // details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with Flupke. If not, see <http://www.gnu.org/licenses/>.
+// along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef FLUPKEMETRICSGLOBAL_P_H
-#define FLUPKEMETRICSGLOBAL_P_H
+#ifndef QUICKENMETRICSGLOBAL_P_H
+#define QUICKENMETRICSGLOBAL_P_H
 
-#include <FlupkeMetrics/flupkemetricsglobal.h>
+#include <QuickenMetrics/quickenmetricsglobal.h>
 
 // Logging macros, debug macros are compiled out for release builds.
 #define LOG(...) qDebug(__VA_ARGS__)
@@ -49,10 +49,10 @@ template<typename T, size_t N> constexpr size_t ARRAY_SIZE(T (&)[N]) { return N;
 
 #define IS_POWER_OF_TWO(n) !((n) & ((n) - 1))
 
-#define FLUPKE_METRICS_PRIVATE_EXPORT FLUPKE_METRICS_EXPORT
+#define QUICKEN_METRICS_PRIVATE_EXPORT QUICKEN_METRICS_EXPORT
 
 // Allocates size bytes and returns an pointer to the aligned memory. alignment
 // must be a power-of-two and size a multiple of alignment.
 void* alignedAlloc(size_t alignment, size_t size);
 
-#endif  // FLUPKEMETRICSGLOBAL_P_H
+#endif  // QUICKENMETRICSGLOBAL_P_H

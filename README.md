@@ -1,10 +1,11 @@
-# Flupke
+# Quicken
 
-Additional libraries, plugins anf tools for Qt Quick.
+Started as a dump of the interesting features developed for Ubuntu Touch,
+Quicken delivers additional libraries, plugins and tools for Qt Quick.
 
 ## Supported platforms
 
-Linux (tested on Ubuntu 16.04.2 LTS).
+Linux (tested on Debian 9.3).
 
 ## Build instructions
 

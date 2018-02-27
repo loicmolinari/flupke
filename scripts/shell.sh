@@ -1,20 +1,20 @@
 #!/bin/bash -i
 
-# Copyright © 2017 Loïc Molinari <loicm@loicm.fr>
+# Copyright © 2017-2018 Loïc Molinari <loicm@loicm.fr>
 #
-# This file is part of Flupke.
+# This file is part of Quicken.
 #
-# Flupke is free software: you can redistribute it and/or modify it under the
+# Quicken is free software: you can redistribute it and/or modify it under the
 # terms of the GNU Lesser General Public License as published by the Free
 # Software Foundation; version 3.
 #
-# Flupke is distributed in the hope that it will be useful, but WITHOUT ANY
+# Quicken is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 # A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 # details.
 #
 # You should have received a copy of the GNU Lesser General Public License along
-# with Flupke. If not, see <http://www.gnu.org/licenses/>.
+# with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
 # This script spawns a new Bash shell with all the environment variables needed
 # to run apps based on the local source tree uninstalled. Note that qmake must
@@ -22,18 +22,18 @@
 
 #  $ qmake
 #  $ ./scripts/shell.sh
-#  [Flupke] $ make
-#  [Flupke] $ qmlscene-flupke <file>
+#  [Quicken] $ make
+#  [Quicken] $ qmlscene-quicken <file>
 
-NAME='Flupke'
+NAME='Quicken'
 
-BUILD_DIR_FILENAME=`dirname ${BASH_SOURCE[0]}`/../.build_dir.inc
+BUILD_PATHS_FILENAME=`dirname ${BASH_SOURCE[0]}`/../.build_paths.inc
 if ! [ -f $BUILD_DIR_FILENAME ]
 then
     echo "Generate makefiles with 'qmake' first!"
     exit 1
 fi
-. $BUILD_DIR_FILENAME || exit 1
+. $BUILD_PATHS_FILENAME || exit 1
 
 export QML2_IMPORT_PATH=$BUILD_DIR/qml
 export LD_LIBRARY_PATH=$BUILD_DIR/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}

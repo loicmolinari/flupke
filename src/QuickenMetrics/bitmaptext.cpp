@@ -1,19 +1,19 @@
-// Copyright © 2017 Loïc Molinari <loicm@loicm.fr>
+// Copyright © 2017-2018 Loïc Molinari <loicm@loicm.fr>
 // Copyright © 2016 Canonical Ltd.
 //
-// This file is part of Flupke.
+// This file is part of Quicken.
 //
-// Flupke is free software: you can redistribute it and/or modify it under the
+// Quicken is free software: you can redistribute it and/or modify it under the
 // terms of the GNU Lesser General Public License as published by the Free
 // Software Foundation; version 3.
 //
-// Flupke is distributed in the hope that it will be useful, but WITHOUT ANY
+// Quicken is distributed in the hope that it will be useful, but WITHOUT ANY
 // WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 // A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 // details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with Flupke. If not, see <http://www.gnu.org/licenses/>.
+// along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
 #include <math.h>
 
@@ -23,7 +23,7 @@
 
 #include "bitmaptext_p.h"
 #include "bitmaptextfont_p.h"
-#include "flupkemetricsglobal_p.h"
+#include "quickenmetricsglobal_p.h"
 
 static const GLchar* bitmapTextVertexShaderSource =
 #if !defined(QT_OPENGL_ES_2)
@@ -59,7 +59,7 @@ const int bitmapTextDefaultFontSize = 16;
 const float bitmapTextDefaultOpacity = 1.0f;
 const float bitmapTextCarriageReturnHeight = 1.5f;
 
-FMBitmapText::FMBitmapText()
+QMBitmapText::QMBitmapText()
     : m_functions(nullptr)
 #if !defined QT_NO_DEBUG
     , m_context(nullptr)
@@ -82,7 +82,7 @@ FMBitmapText::FMBitmapText()
     }
 }
 
-FMBitmapText::~FMBitmapText()
+QMBitmapText::~QMBitmapText()
 {
     delete [] m_vertexBuffer;
     delete [] m_textToVertexBuffer;
@@ -148,7 +148,7 @@ static GLuint createProgram(QOpenGLFunctions* functions, const char* vertexShade
     return program;
 }
 
-bool FMBitmapText::initialize()
+bool QMBitmapText::initialize()
 {
     DASSERT(!(m_flags & Initialized));
     DASSERT(QOpenGLContext::currentContext());
@@ -192,7 +192,7 @@ bool FMBitmapText::initialize()
     }
 }
 
-void FMBitmapText::finalize()
+void QMBitmapText::finalize()
 {
     DASSERT(m_flags & Initialized);
     DASSERT(m_context == QOpenGLContext::currentContext());
@@ -223,7 +223,7 @@ void FMBitmapText::finalize()
 #endif
 }
 
-void FMBitmapText::setText(const char* text)
+void QMBitmapText::setText(const char* text)
 {
     DASSERT(m_flags & Initialized);
 
@@ -331,7 +331,7 @@ void FMBitmapText::setText(const char* text)
     }
 }
 
-void FMBitmapText::updateText(const char* text, int index, int length)
+void QMBitmapText::updateText(const char* text, int index, int length)
 {
     DASSERT(m_flags & Initialized);
     DASSERT(text);
@@ -365,7 +365,7 @@ void FMBitmapText::updateText(const char* text, int index, int length)
     }
 }
 
-void FMBitmapText::bindProgram()
+void QMBitmapText::bindProgram()
 {
     DASSERT(m_context == QOpenGLContext::currentContext());
     DASSERT(m_flags & Initialized);
@@ -373,7 +373,7 @@ void FMBitmapText::bindProgram()
     m_functions->glUseProgram(m_program);
 }
 
-void FMBitmapText::setTransform(const QSize& viewportSize, const QPointF& position)
+void QMBitmapText::setTransform(const QSize& viewportSize, const QPointF& position)
 {
     DASSERT(m_context == QOpenGLContext::currentContext());
     DASSERT(m_flags & Initialized);
@@ -394,7 +394,7 @@ void FMBitmapText::setTransform(const QSize& viewportSize, const QPointF& positi
     m_functions->glUniform4fv(m_programTransform, 1, transform);
 }
 
-void FMBitmapText::setOpacity(float opacity)
+void QMBitmapText::setOpacity(float opacity)
 {
     DASSERT(m_context == QOpenGLContext::currentContext());
     DASSERT(m_flags & Initialized);
@@ -403,7 +403,7 @@ void FMBitmapText::setOpacity(float opacity)
     m_functions->glUniform1f(m_programOpacity, opacity);
 }
 
-void FMBitmapText::render()
+void QMBitmapText::render()
 {
     DASSERT(m_context == QOpenGLContext::currentContext());
     DASSERT(m_flags & Initialized);

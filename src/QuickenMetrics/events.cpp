@@ -1,19 +1,19 @@
-// Copyright © 2017 Loïc Molinari <loicm@loicm.fr>
+// Copyright © 2017-2018 Loïc Molinari <loicm@loicm.fr>
 // Copyright © 2016 Canonical Ltd.
 //
-// This file is part of Flupke.
+// This file is part of Quicken.
 //
-// Flupke is free software: you can redistribute it and/or modify it under the
+// Quicken is free software: you can redistribute it and/or modify it under the
 // terms of the GNU Lesser General Public License as published by the Free
 // Software Foundation; version 3.
 //
-// Flupke is distributed in the hope that it will be useful, but WITHOUT ANY
+// Quicken is distributed in the hope that it will be useful, but WITHOUT ANY
 // WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 // A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 // details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with Flupke. If not, see <http://www.gnu.org/licenses/>.
+// along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
 #include "events_p.h"
 
@@ -24,17 +24,17 @@
 
 #include <QtCore/QElapsedTimer>
 
-#include "flupkemetricsglobal_p.h"
+#include "quickenmetricsglobal_p.h"
 
 const int bufferSize = 128;
 const int bufferAlignment = 64;
 
-FMEventUtils::FMEventUtils()
-    : d_ptr(new FMEventUtilsPrivate)
+QMEventUtils::QMEventUtils()
+    : d_ptr(new QMEventUtilsPrivate)
 {
 }
 
-FMEventUtilsPrivate::FMEventUtilsPrivate()
+QMEventUtilsPrivate::QMEventUtilsPrivate()
 {
 #if !defined(QT_NO_DEBUG)
     ASSERT(m_buffer = static_cast<char*>(alignedAlloc(bufferAlignment, bufferSize)));
@@ -47,28 +47,28 @@ FMEventUtilsPrivate::FMEventUtilsPrivate()
     m_pageSize = sysconf(_SC_PAGESIZE);
 }
 
-FMEventUtils::~FMEventUtils()
+QMEventUtils::~QMEventUtils()
 {
     delete d_ptr;
 }
 
-FMEventUtilsPrivate::~FMEventUtilsPrivate()
+QMEventUtilsPrivate::~QMEventUtilsPrivate()
 {
     free(m_buffer);
 }
 
-void FMEventUtils::updateProcessEvent(FMEvent* event)
+void QMEventUtils::updateProcessEvent(QMEvent* event)
 {
     DASSERT(event);
-    Q_D(EventUtils);
+    Q_D(QMEventUtils);
 
-    event->type = FMEvent::Process;
-    event->timeStamp = FMEventUtils::timeStamp();
+    event->type = QMEvent::Process;
+    event->timeStamp = QMEventUtils::timeStamp();
     d->updateCpuUsage(event);
     d->updateProcStatMetrics(event);
 }
 
-void FMEventUtilsPrivate::updateCpuUsage(FMEvent* event)
+void QMEventUtilsPrivate::updateCpuUsage(QMEvent* event)
 {
     // times() is a Linux syscall giving CPU times used by the process. The
     // granularity of the unit returned by the (some?) kernel (clock ticks)
@@ -88,7 +88,7 @@ void FMEventUtilsPrivate::updateCpuUsage(FMEvent* event)
     }
 }
 
-void FMEventUtilsPrivate::updateProcStatMetrics(FMEvent* event)
+void QMEventUtilsPrivate::updateProcStatMetrics(QMEvent* event)
 {
     int fd = open("/proc/self/stat", O_RDONLY);
     if (fd == -1) {
@@ -146,7 +146,7 @@ void FMEventUtilsPrivate::updateProcStatMetrics(FMEvent* event)
 }
 
 // static.
-quint64 FMEventUtils::timeStamp()
+quint64 QMEventUtils::timeStamp()
 {
     static QElapsedTimer timer;
 

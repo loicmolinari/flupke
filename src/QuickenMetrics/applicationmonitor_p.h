@@ -1,24 +1,24 @@
-// Copyright © 2017 Loïc Molinari <loicm@loicm.fr>
+// Copyright © 2017-2018 Loïc Molinari <loicm@loicm.fr>
 // Copyright © 2016 Canonical Ltd.
 //
-// This file is part of Flupke.
+// This file is part of Quicken.
 //
-// Flupke is free software: you can redistribute it and/or modify it under the
+// Quicken is free software: you can redistribute it and/or modify it under the
 // terms of the GNU Lesser General Public License as published by the Free
 // Software Foundation; version 3.
 //
-// Flupke is distributed in the hope that it will be useful, but WITHOUT ANY
+// Quicken is distributed in the hope that it will be useful, but WITHOUT ANY
 // WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 // A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 // details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with Flupke. If not, see <http://www.gnu.org/licenses/>.
+// along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef APPLICATIONMONITOR_P_H
 #define APPLICATIONMONITOR_P_H
 
-#include <FlupkeMetrics/applicationmonitor.h>
+#include <QuickenMetrics/applicationmonitor.h>
 
 #include <QtCore/QTimer>
 #include <QtCore/QThread>
@@ -28,21 +28,21 @@
 #include <QtCore/QRunnable>
 #include <QtCore/QAtomicInteger>
 
-#include <FlupkeMetrics/private/overlay_p.h>
-#include <FlupkeMetrics/private/gputimer_p.h>
-#include <FlupkeMetrics/private/flupkemetricsglobal_p.h>
+#include <QuickenMetrics/private/overlay_p.h>
+#include <QuickenMetrics/private/gputimer_p.h>
+#include <QuickenMetrics/private/quickenmetricsglobal_p.h>
 
 class LoggingThread;
 class WindowMonitor;
 class QQuickWindow;
 
-class FLUPKE_METRICS_PRIVATE_EXPORT FMApplicationMonitorPrivate
+class QUICKEN_METRICS_PRIVATE_EXPORT QMApplicationMonitorPrivate
 {
 public:
     static const int maxMonitors = 16;
     static const int maxLoggers = 8;
 
-    static inline FMApplicationMonitorPrivate* get(FMApplicationMonitor* applicationMonitor) {
+    static inline QMApplicationMonitorPrivate* get(QMApplicationMonitor* applicationMonitor) {
         return applicationMonitor->d_func();
     }
 
@@ -58,8 +58,8 @@ public:
         WindowMonitorMask      = 0xffff0000
     };
 
-    FMApplicationMonitorPrivate(FMApplicationMonitor* applicationMonitor);
-    ~FMApplicationMonitorPrivate();
+    QMApplicationMonitorPrivate(QMApplicationMonitor* applicationMonitor);
+    ~QMApplicationMonitorPrivate();
 
     void startMonitoring(QQuickWindow* window);
     void start();
@@ -70,33 +70,33 @@ public:
     void setMonitoringFlags(quint32 flags);
     void processTimeout();
 
-    FMApplicationMonitor* const q_ptr;
-    Q_DECLARE_PUBLIC(FMApplicationMonitor)
+    QMApplicationMonitor* const q_ptr;
+    Q_DECLARE_PUBLIC(QMApplicationMonitor)
 
     WindowMonitor* m_monitors[maxMonitors];
-    FMLogger* m_loggers[maxLoggers];
+    QMLogger* m_loggers[maxLoggers];
     LoggingThread* m_loggingThread;
 #if !defined(QT_NO_DEBUG)
     QGuiApplication* m_application;
 #endif
-    FMEventUtils m_eventUtils;
+    QMEventUtils m_eventUtils;
     QTimer m_processTimer;
     QMutex m_monitorsMutex;
     int m_monitorCount;
     int m_loggerCount;
-    int m_updateInterval[FMEvent::TypeCount];
+    int m_updateInterval[QMEvent::TypeCount];
     quint32 m_flags;
-    alignas(64) FMEvent m_processEvent;
+    alignas(64) QMEvent m_processEvent;
 };
 
-class FLUPKE_METRICS_PRIVATE_EXPORT LoggingThread : public QThread
+class QUICKEN_METRICS_PRIVATE_EXPORT LoggingThread : public QThread
 {
 public:
     LoggingThread();
 
     void run() override;
-    void push(const FMEvent* event);
-    void setLoggers(FMLogger** loggers, int count);
+    void push(const QMEvent* event);
+    void setLoggers(QMLogger** loggers, int count);
     LoggingThread* ref();
     void deref();
 
@@ -108,8 +108,8 @@ private:
 
     ~LoggingThread();
 
-    FMEvent* m_queue;
-    FMLogger* m_loggers[FMApplicationMonitorPrivate::maxLoggers];
+    QMEvent* m_queue;
+    QMLogger* m_loggers[QMApplicationMonitorPrivate::maxLoggers];
     int m_loggerCount;
     QMutex m_mutex;
     QWaitCondition m_condition;
@@ -119,13 +119,13 @@ private:
     quint8 m_flags;
 };
 
-class FLUPKE_METRICS_PRIVATE_EXPORT WindowMonitorDeleter : public QRunnable
+class QUICKEN_METRICS_PRIVATE_EXPORT WindowMonitorDeleter : public QRunnable
 {
 public:
-    WindowMonitorDeleter(FMApplicationMonitor* applicationMonitor, WindowMonitor* monitor)
+    WindowMonitorDeleter(QMApplicationMonitor* applicationMonitor, WindowMonitor* monitor)
         : m_applicationMonitor(applicationMonitor)
         , m_monitor(monitor) {
-        DASSERT(applicationMonitor == FMApplicationMonitor::instance());
+        DASSERT(applicationMonitor == QMApplicationMonitor::instance());
         DASSERT(m_applicationMonitor);
         DASSERT(monitor);
     }
@@ -134,15 +134,15 @@ public:
     void run() override;
 
 private:
-    FMApplicationMonitor* m_applicationMonitor;
+    QMApplicationMonitor* m_applicationMonitor;
     WindowMonitor* m_monitor;
 };
 
-class FLUPKE_METRICS_PRIVATE_EXPORT WindowMonitorFlagSetter : public QRunnable
+class QUICKEN_METRICS_PRIVATE_EXPORT WindowMonitorFlagSetter : public QRunnable
 {
 public:
     WindowMonitorFlagSetter(WindowMonitor* monitor, quint32 flags)
-        : m_applicationMonitor(FMApplicationMonitor::instance())
+        : m_applicationMonitor(QMApplicationMonitor::instance())
         , m_monitor(monitor)
         , m_flags(flags) {
         DASSERT(m_applicationMonitor);
@@ -153,23 +153,23 @@ public:
     void run() override {}
 
 private:
-    FMApplicationMonitor* m_applicationMonitor;
+    QMApplicationMonitor* m_applicationMonitor;
     WindowMonitor* m_monitor;
     quint32 m_flags;
 };
 
-class FLUPKE_METRICS_PRIVATE_EXPORT WindowMonitor : public QObject
+class QUICKEN_METRICS_PRIVATE_EXPORT WindowMonitor : public QObject
 {
     Q_OBJECT
 
 public:
     WindowMonitor(
-        FMApplicationMonitor* applicationMonitor, QQuickWindow* window,
+        QMApplicationMonitor* applicationMonitor, QQuickWindow* window,
         LoggingThread* loggingThread, quint32 flags, quint32 id);
     ~WindowMonitor();
 
     QQuickWindow* window() const { return m_window; }
-    void setProcessEvent(const FMEvent& event);
+    void setProcessEvent(const QMEvent& event);
 
 private Q_SLOTS:
     void windowSceneGraphInitialized();
@@ -192,23 +192,23 @@ private:
 
     bool gpuResourcesInitialized() const { return m_flags & GpuResourcesInitialized; }
     void setFlags(quint32 flags) {
-        m_flags = (m_flags & FMApplicationMonitorPrivate::WindowMonitorMask) | flags;
+        m_flags = (m_flags & QMApplicationMonitorPrivate::WindowMonitorMask) | flags;
     }
     void initializeGpuResources();
     void finalizeGpuResources();
 
-    FMApplicationMonitor* m_applicationMonitor;
+    QMApplicationMonitor* m_applicationMonitor;
     LoggingThread* m_loggingThread;
     QQuickWindow* m_window;
-    FMGPUTimer m_gpuTimer;
-    FMOverlay m_overlay;  // Accessed from different threads (needs locking).
+    QMGPUTimer m_gpuTimer;
+    QMOverlay m_overlay;  // Accessed from different threads (needs locking).
     QMutex m_mutex;
     QElapsedTimer m_sceneGraphTimer;
     QElapsedTimer m_deltaTimer;
     quint32 m_id;
     quint32 m_flags;
     QSize m_frameSize;
-    FMEvent m_frameEvent;
+    QMEvent m_frameEvent;
 
     friend class WindowMonitorDeleter;
     friend class WindowMonitorFlagSetter;

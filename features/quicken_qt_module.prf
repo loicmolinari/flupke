@@ -1,4 +1,4 @@
-load(flupke_common)
+load(quicken_common)
 
 # Enables the copy of private and public headers to an include directory at the
 # root of the sources before compilation and the copy of the compiled libraries

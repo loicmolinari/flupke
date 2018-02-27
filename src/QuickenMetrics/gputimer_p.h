@@ -1,19 +1,19 @@
-// Copyright © 2017 Loïc Molinari <loicm@loicm.fr>
+// Copyright © 2017-2018 Loïc Molinari <loicm@loicm.fr>
 // Copyright © 2016 Canonical Ltd.
 //
-// This file is part of Flupke.
+// This file is part of Quicken.
 //
-// Flupke is free software: you can redistribute it and/or modify it under the
+// Quicken is free software: you can redistribute it and/or modify it under the
 // terms of the GNU Lesser General Public License as published by the Free
 // Software Foundation; version 3.
 //
-// Flupke is distributed in the hope that it will be useful, but WITHOUT ANY
+// Quicken is distributed in the hope that it will be useful, but WITHOUT ANY
 // WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 // A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 // details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with Flupke. If not, see <http://www.gnu.org/licenses/>.
+// along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef GPUTIMER_P_H
 #define GPUTIMER_P_H
@@ -25,18 +25,18 @@
 #include <EGL/eglext.h>
 #endif
 
-#include <FlupkeMetrics/private/flupkemetricsglobal_p.h>
+#include <QuickenMetrics/private/quickenmetricsglobal_p.h>
 
-// FMGPUTimer is used to measure the amount of time taken by the GPU to fully
+// QMGPUTimer is used to measure the amount of time taken by the GPU to fully
 // complete a set of graphics commands. As opposed to a basic timer which would
 // determine the time taken by the graphics driver to push the graphics commands
 // in the command buffer from the CPU, this timer pushes dedicated
 // synchronization commands to the command buffer, which the GPU signals
 // whenever completed. That allows to get accurate GPU timings.
-class FLUPKE_METRICS_PRIVATE_EXPORT FMGPUTimer
+class QUICKEN_METRICS_PRIVATE_EXPORT QMGPUTimer
 {
 public:
-    FMGPUTimer() :
+    QMGPUTimer() :
 #if !defined QT_NO_DEBUG
         m_context(nullptr), m_started(false),
 #endif

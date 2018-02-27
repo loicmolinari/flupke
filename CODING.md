@@ -1,6 +1,6 @@
-# Flupke coding style
+# Quicken coding style
 
-Flupke follows the Qt conventions, see:
+Quicken follows the Qt conventions, see:
 - https://wiki.qt.io/Coding_Conventions
 - https://wiki.qt.io/Qt_Coding_Style
 
@@ -8,11 +8,11 @@ On top of it we add the few clarifications listed below.
 
 ## Header inclusion
 
-When including Qt or Flupke headers, always prefix with the project name. Use:
+When including Qt or Quicken headers, always prefix with the project name. Use:
 
 ```C++
 #include <QtCore/QMap>
-#include <FlupkeMetrics/applicationmonitor.h>
+#include <QuickenMetrics/applicationmonitor.h>
 ```
 
 not
@@ -38,14 +38,14 @@ included in ordered sections, separated by an empty line, as follows:
 #include <hash_map>
 #include <vector>
 
-// Qt and Flupke headers. Try to first list QtCore and QtGui headers. Private
+// Qt and Quicken headers. Try to first list QtCore and QtGui headers. Private
 // headers come right after public headers of the same project.
 #include <QtCore/QDebug>
 #include <QtCore/QHash>
 #include <QtCore/private/qobject_p.h>
 #include <QtGui/QWindow>
 #include <QtGui/private/qcolor_p.h>
-#include <FlupkeMetrics/applicationmonitor.h>
+#include <QuickenMetrics/applicationmonitor.h>
 
 // Other libraries' headers.
 #include <gst/gst.h>

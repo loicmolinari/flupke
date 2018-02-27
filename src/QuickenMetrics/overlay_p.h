@@ -1,39 +1,39 @@
-// Copyright © 2017 Loïc Molinari <loicm@loicm.fr>
+// Copyright © 2017-2018 Loïc Molinari <loicm@loicm.fr>
 // Copyright © 2016 Canonical Ltd.
 //
-// This file is part of Flupke.
+// This file is part of Quicken.
 //
-// Flupke is free software: you can redistribute it and/or modify it under the
+// Quicken is free software: you can redistribute it and/or modify it under the
 // terms of the GNU Lesser General Public License as published by the Free
 // Software Foundation; version 3.
 //
-// Flupke is distributed in the hope that it will be useful, but WITHOUT ANY
+// Quicken is distributed in the hope that it will be useful, but WITHOUT ANY
 // WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 // A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 // details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with Flupke. If not, see <http://www.gnu.org/licenses/>.
+// along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef OVERLAY_P_H
 #define OVERLAY_P_H
 
 #include <QtCore/QSize>
 
-#include <FlupkeMetrics/events.h>
-#include <FlupkeMetrics/private/bitmaptext_p.h>
-#include <FlupkeMetrics/private/flupkemetricsglobal_p.h>
+#include <QuickenMetrics/events.h>
+#include <QuickenMetrics/private/bitmaptext_p.h>
+#include <QuickenMetrics/private/quickenmetricsglobal_p.h>
 
 #if !defined QT_NO_DEBUG
 class QOpenGLContext;
 #endif
 
 // Renders an overlay based on various metrics.
-class FLUPKE_METRICS_PRIVATE_EXPORT FMOverlay
+class QUICKEN_METRICS_PRIVATE_EXPORT QMOverlay
 {
 public:
-    FMOverlay(const char* text, int windowId);
-    ~FMOverlay();
+    QMOverlay(const char* text, int windowId);
+    ~QMOverlay();
 
     // Allocates/Deletes the OpenGL resources. finalize() is not called at
     // destruction, it must be explicitly called to free the resources at the
@@ -43,14 +43,14 @@ public:
     void finalize();
 
     // Sets the process event.
-    void setProcessEvent(const FMEvent& processEvent);
+    void setProcessEvent(const QMEvent& processEvent);
 
     // Renders the overlay. Must be called in a thread with the same OpenGL
     // context bound than at initialize().
-    void render(const FMEvent& frameEvent, const QSize& frameSize);
+    void render(const QMEvent& frameEvent, const QSize& frameSize);
 
 private:
-    void updateFrameMetrics(const FMEvent& frameEvent);
+    void updateFrameMetrics(const QMEvent& frameEvent);
     void updateWindowMetrics(quint32 windowId, const QSize& frameSize);
     void updateProcessMetrics();
     int keywordString(int index, char* buffer, int bufferSize);
@@ -74,13 +74,13 @@ private:
         quint16 index;
         quint16 textIndex;
         quint8 width;
-    } m_metrics[FMEvent::TypeCount][maxMetricsPerType];
-    quint8 m_metricsSize[FMEvent::TypeCount];
-    FMBitmapText m_bitmapText;
+    } m_metrics[QMEvent::TypeCount][maxMetricsPerType];
+    quint8 m_metricsSize[QMEvent::TypeCount];
+    QMBitmapText m_bitmapText;
     QSize m_frameSize;
     quint32 m_windowId;
     quint8 m_flags;
-    alignas(64) FMEvent m_processEvent;
+    alignas(64) QMEvent m_processEvent;
 };
 
 #endif  // OVERLAY_P_H

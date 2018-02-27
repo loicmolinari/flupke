@@ -2,8 +2,8 @@ TEMPLATE = subdirs
 
 # Libraries
 
-metrics_lib.subdir = metrics
-metrics_lib.target = metrics-lib
+metrics_lib.subdir = QuickenMetrics
+metrics_lib.target = QuickenMetrics-lib
 SUBDIRS += metrics_lib
 
 # QML modules

@@ -1,30 +1,30 @@
-// Copyright © 2017 Loïc Molinari <loicm@loicm.fr>
+// Copyright © 2017-2018 Loïc Molinari <loicm@loicm.fr>
 // Copyright © 2016 Canonical Ltd.
 //
-// This file is part of Flupke.
+// This file is part of Quicken.
 //
-// Flupke is free software: you can redistribute it and/or modify it under the
+// Quicken is free software: you can redistribute it and/or modify it under the
 // terms of the GNU Lesser General Public License as published by the Free
 // Software Foundation; version 3.
 //
-// Flupke is distributed in the hope that it will be useful, but WITHOUT ANY
+// Quicken is distributed in the hope that it will be useful, but WITHOUT ANY
 // WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 // A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 // details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with Flupke. If not, see <http://www.gnu.org/licenses/>.
+// along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef EVENTS_H
 #define EVENTS_H
 
-#include <FlupkeMetrics/flupkemetricsglobal.h>
+#include <QuickenMetrics/quickenmetricsglobal.h>
 
 // FIXME(loicm) Using alignas() in that public header requires users to have a
 //     C++11 compiler. That also makes the use of Q_NULLPTR and Q_OVERRIDE in
 //     other public headers useless.
 
-struct FLUPKE_METRICS_EXPORT FMProcessEvent
+struct QUICKEN_METRICS_EXPORT QMProcessEvent
 {
     // Virtual size of the process in kilobytes.
     quint32 vszMemory;
@@ -43,9 +43,9 @@ struct FLUPKE_METRICS_EXPORT FMProcessEvent
     // memory alignment, don't forget to update when adding new metrics.
     quint8 __reserved[/*12 bytes taken,*/ 100 /*bytes free*/];
 };
-Q_STATIC_ASSERT(sizeof(FMProcessEvent) == 112);
+Q_STATIC_ASSERT(sizeof(QMProcessEvent) == 112);
 
-struct FLUPKE_METRICS_EXPORT FMWindowEvent
+struct QUICKEN_METRICS_EXPORT QMWindowEvent
 {
     enum State { Hidden = 0, Shown = 1, Resized = 2, StateCount = 3 };
 
@@ -65,9 +65,9 @@ struct FLUPKE_METRICS_EXPORT FMWindowEvent
     // memory alignment, don't forget to update when adding new metrics.
     quint8 __reserved[/*9 bytes taken,*/ 103 /*bytes free*/];
 };
-Q_STATIC_ASSERT(sizeof(FMWindowEvent) == 112);
+Q_STATIC_ASSERT(sizeof(QMWindowEvent) == 112);
 
-struct FLUPKE_METRICS_EXPORT FMFrameEvent
+struct QUICKEN_METRICS_EXPORT QMFrameEvent
 {
     // The id of the window on which the frame has been rendered.
     quint32 window;
@@ -97,13 +97,13 @@ struct FLUPKE_METRICS_EXPORT FMFrameEvent
     // memory alignment, don't forget to update when adding new metrics.
     quint8 __reserved[/*48 bytes taken,*/ 64 /*bytes free*/];
 };
-Q_STATIC_ASSERT(sizeof(FMFrameEvent) == 112);
+Q_STATIC_ASSERT(sizeof(QMFrameEvent) == 112);
 
-struct FLUPKE_METRICS_EXPORT FMGenericEvent
+struct QUICKEN_METRICS_EXPORT QMGenericEvent
 {
     static const quint32 maxStringSize = 64;
 
-    // Id retrieved from FMApplicationMonitor::registerGenericEvent().
+    // Id retrieved from QMApplicationMonitor::registerGenericEvent().
     quint32 id;
 
     // Size of the string (including the null-terminating char).
@@ -116,9 +116,9 @@ struct FLUPKE_METRICS_EXPORT FMGenericEvent
     // memory alignment, don't forget to update when adding new metrics.
     quint8 __reserved[/*72 bytes taken,*/ 40 /*bytes free*/];
 };
-Q_STATIC_ASSERT(sizeof(FMGenericEvent) == 112);
+Q_STATIC_ASSERT(sizeof(QMGenericEvent) == 112);
 
-struct FLUPKE_METRICS_EXPORT FMEvent
+struct QUICKEN_METRICS_EXPORT QMEvent
 {
     enum Type { Process = 0, Window = 1, Frame = 2, Generic = 3, TypeCount = 4 };
 
@@ -129,33 +129,33 @@ struct FLUPKE_METRICS_EXPORT FMEvent
     alignas(8) quint64 timeStamp;
 
     union {
-        FMProcessEvent process;
-        FMWindowEvent window;
-        FMFrameEvent frame;
-        FMGenericEvent generic;
+        QMProcessEvent process;
+        QMWindowEvent window;
+        QMFrameEvent frame;
+        QMGenericEvent generic;
     };
 };
-Q_STATIC_ASSERT(sizeof(FMEvent) == 128);
+Q_STATIC_ASSERT(sizeof(QMEvent) == 128);
 
-class FMEventUtilsPrivate;
+class QMEventUtilsPrivate;
 
 // Utilities to manipulate events.
-class FLUPKE_METRICS_EXPORT FMEventUtils
+class QUICKEN_METRICS_EXPORT QMEventUtils
 {
 public:
-    FMEventUtils();
-    ~FMEventUtils();
+    QMEventUtils();
+    ~QMEventUtils();
 
     // Fill the given event with updated process metrics.
-    void updateProcessEvent(FMEvent* event);
+    void updateProcessEvent(QMEvent* event);
 
     // Get a time stamp in nanoseconds. The timer is started at the first call,
     // returning 0.
     static quint64 timeStamp();
 
 private:
-    FMEventUtilsPrivate* const d_ptr;
-    Q_DECLARE_PRIVATE(FMEventUtils)
+    QMEventUtilsPrivate* const d_ptr;
+    Q_DECLARE_PRIVATE(QMEventUtils)
 };
 
 #endif  // EVENTS_H

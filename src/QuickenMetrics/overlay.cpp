@@ -1,19 +1,19 @@
-// Copyright © 2017 Loïc Molinari <loicm@loicm.fr>
+// Copyright © 2017-2018 Loïc Molinari <loicm@loicm.fr>
 // Copyright © 2016 Canonical Ltd.
 //
-// This file is part of Flupke.
+// This file is part of Quicken.
 //
-// Flupke is free software: you can redistribute it and/or modify it under the
+// Quicken is free software: you can redistribute it and/or modify it under the
 // terms of the GNU Lesser General Public License as published by the Free
 // Software Foundation; version 3.
 //
-// Flupke is distributed in the hope that it will be useful, but WITHOUT ANY
+// Quicken is distributed in the hope that it will be useful, but WITHOUT ANY
 // WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 // A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 // details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with Flupke. If not, see <http://www.gnu.org/licenses/>.
+// along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
 #include "overlay_p.h"
 
@@ -23,7 +23,7 @@
 #include <QtCore/QSysInfo>
 #include <QtGui/QGuiApplication>
 
-#include "flupkemetricsglobal_p.h"
+#include "quickenmetricsglobal_p.h"
 
 static const QPointF position = QPointF(5.0f, 5.0f);
 static const float opacity = 0.85f;
@@ -49,20 +49,20 @@ static const struct {
     const char* const name;
     quint16 size;
     quint16 defaultWidth;
-    FMEvent::Type type;
+    QMEvent::Type type;
 } metricInfo[] = {
-    { "cpuUsage",    sizeof("cpuUsage") - 1,    3, FMEvent::Process },
-    { "threadCount", sizeof("threadCount") - 1, 3, FMEvent::Process },
-    { "vszMemory",   sizeof("vszMemory") - 1,   8, FMEvent::Process },
-    { "rssMemory",   sizeof("rssMemory") - 1,   8, FMEvent::Process },
-    { "windowId",    sizeof("windowId") - 1,    2, FMEvent::Window  },
-    { "windowSize",  sizeof("windowSize") - 1,  9, FMEvent::Window  },
-    { "frameNumber", sizeof("frameNumber") - 1, 7, FMEvent::Frame   },
-    { "deltaTime",   sizeof("deltaTime") - 1,   7, FMEvent::Frame   },
-    { "syncTime",    sizeof("syncTime") - 1,    7, FMEvent::Frame   },
-    { "renderTime",  sizeof("renderTime") - 1,  7, FMEvent::Frame   },
-    { "gpuTime",     sizeof("gpuTime") - 1,     7, FMEvent::Frame   },
-    { "totalTime",   sizeof("totalTime") - 1,   7, FMEvent::Frame   }
+    { "cpuUsage",    sizeof("cpuUsage") - 1,    3, QMEvent::Process },
+    { "threadCount", sizeof("threadCount") - 1, 3, QMEvent::Process },
+    { "vszMemory",   sizeof("vszMemory") - 1,   8, QMEvent::Process },
+    { "rssMemory",   sizeof("rssMemory") - 1,   8, QMEvent::Process },
+    { "windowId",    sizeof("windowId") - 1,    2, QMEvent::Window  },
+    { "windowSize",  sizeof("windowSize") - 1,  9, QMEvent::Window  },
+    { "frameNumber", sizeof("frameNumber") - 1, 7, QMEvent::Frame   },
+    { "deltaTime",   sizeof("deltaTime") - 1,   7, QMEvent::Frame   },
+    { "syncTime",    sizeof("syncTime") - 1,    7, QMEvent::Frame   },
+    { "renderTime",  sizeof("renderTime") - 1,  7, QMEvent::Frame   },
+    { "gpuTime",     sizeof("gpuTime") - 1,     7, QMEvent::Frame   },
+    { "totalTime",   sizeof("totalTime") - 1,   7, QMEvent::Frame   }
 };
 enum {
     CpuUsage = 0, ThreadCount, VszMemory, RssMemory, WindowId, WindowSize, FrameNumber, DeltaTime,
@@ -83,7 +83,7 @@ const int maxParsedTextSize = 1024;  // Including '\0'.
 static char cpuModelString[maxKeywordStringSize] = { 0 };
 static int cpuModelStringSize = 0;
 
-FMOverlay::FMOverlay(const char* text, int windowId)
+QMOverlay::QMOverlay(const char* text, int windowId)
     : m_parsedText(new char [maxParsedTextSize])
 #if !defined QT_NO_DEBUG
     , m_context(nullptr)
@@ -98,10 +98,10 @@ FMOverlay::FMOverlay(const char* text, int windowId)
 
     m_buffer = alignedAlloc(bufferAlignment, bufferSize);
     memset(&m_processEvent, 0, sizeof(m_processEvent));
-    m_processEvent.type = FMEvent::Process;
+    m_processEvent.type = QMEvent::Process;
 }
 
-FMOverlay::~FMOverlay()
+QMOverlay::~QMOverlay()
 {
     DASSERT(!(m_flags & Initialized));
 
@@ -109,7 +109,7 @@ FMOverlay::~FMOverlay()
     delete [] m_parsedText;
 }
 
-bool FMOverlay::initialize()
+bool QMOverlay::initialize()
 {
     DASSERT(!(m_flags & Initialized));
     DASSERT(QOpenGLContext::currentContext());
@@ -129,7 +129,7 @@ bool FMOverlay::initialize()
     }
 }
 
-void FMOverlay::finalize()
+void QMOverlay::finalize()
 {
     DASSERT(m_flags & Initialized);
     DASSERT(m_context == QOpenGLContext::currentContext());
@@ -142,15 +142,15 @@ void FMOverlay::finalize()
 #endif
 }
 
-void FMOverlay::setProcessEvent(const FMEvent& processEvent)
+void QMOverlay::setProcessEvent(const QMEvent& processEvent)
 {
-    DASSERT(processEvent.type == FMEvent::Process);
+    DASSERT(processEvent.type == QMEvent::Process);
 
     memcpy(&m_processEvent, &processEvent, sizeof(m_processEvent));
     m_flags |= DirtyProcessEvent;
 }
 
-void FMOverlay::render(const FMEvent& frameEvent, const QSize& frameSize)
+void QMOverlay::render(const QMEvent& frameEvent, const QSize& frameSize)
 {
     DASSERT(m_flags & Initialized);
     DASSERT(m_context == QOpenGLContext::currentContext());
@@ -233,18 +233,18 @@ static int timeMetricToText(quint64 metric, char* text, int width)
     return width;
 }
 
-void FMOverlay::updateFrameMetrics(const FMEvent& event)
+void QMOverlay::updateFrameMetrics(const QMEvent& event)
 {
     DASSERT(m_flags & Initialized);
     Q_STATIC_ASSERT(IS_POWER_OF_TWO(maxMetricWidth));
 
     char* text = static_cast<char*>(m_buffer);
-    for (int i = 0; i < m_metricsSize[FMEvent::Frame]; i++) {
-        int textWidth = m_metrics[FMEvent::Frame][i].width;
+    for (int i = 0; i < m_metricsSize[QMEvent::Frame]; i++) {
+        int textWidth = m_metrics[QMEvent::Frame][i].width;
         DASSERT(textWidth <= maxMetricWidth);
         memset(text, ' ', maxMetricWidth);
 
-        switch (m_metrics[FMEvent::Frame][i].index) {
+        switch (m_metrics[QMEvent::Frame][i].index) {
         case FrameNumber:
             integerMetricToText(event.frame.number, text, textWidth);
             break;
@@ -278,23 +278,23 @@ void FMOverlay::updateFrameMetrics(const FMEvent& event)
         }
 
         m_bitmapText.updateText(
-            text, m_metrics[FMEvent::Frame][i].textIndex,
-            m_metrics[FMEvent::Frame][i].width);
+            text, m_metrics[QMEvent::Frame][i].textIndex,
+            m_metrics[QMEvent::Frame][i].width);
     }
 }
 
-void FMOverlay::updateWindowMetrics(quint32 windowId, const QSize& frameSize)
+void QMOverlay::updateWindowMetrics(quint32 windowId, const QSize& frameSize)
 {
     DASSERT(m_flags & Initialized);
     Q_STATIC_ASSERT(IS_POWER_OF_TWO(maxMetricWidth));
 
     char* text = static_cast<char*>(m_buffer);
-    for (int i = 0; i < m_metricsSize[FMEvent::Window]; i++) {
-        int textWidth = m_metrics[FMEvent::Window][i].width;
+    for (int i = 0; i < m_metricsSize[QMEvent::Window]; i++) {
+        int textWidth = m_metrics[QMEvent::Window][i].width;
         DASSERT(textWidth <= maxMetricWidth);
         memset(text, ' ', maxMetricWidth);
 
-        switch (m_metrics[FMEvent::Window][i].index) {
+        switch (m_metrics[QMEvent::Window][i].index) {
         case WindowId:
             textWidth = integerMetricToText(windowId, text, textWidth);
             break;
@@ -314,23 +314,23 @@ void FMOverlay::updateWindowMetrics(quint32 windowId, const QSize& frameSize)
         }
 
         m_bitmapText.updateText(
-            text, m_metrics[FMEvent::Window][i].textIndex,
-            m_metrics[FMEvent::Window][i].width);
+            text, m_metrics[QMEvent::Window][i].textIndex,
+            m_metrics[QMEvent::Window][i].width);
     }
 }
 
-void FMOverlay::updateProcessMetrics()
+void QMOverlay::updateProcessMetrics()
 {
     DASSERT(m_flags & Initialized);
     Q_STATIC_ASSERT(IS_POWER_OF_TWO(maxMetricWidth));
 
     char* text = static_cast<char*>(m_buffer);
-    for (int i = 0; i < m_metricsSize[FMEvent::Process]; i++) {
-        int textWidth = m_metrics[FMEvent::Process][i].width;
+    for (int i = 0; i < m_metricsSize[QMEvent::Process]; i++) {
+        int textWidth = m_metrics[QMEvent::Process][i].width;
         DASSERT(textWidth <= maxMetricWidth);
         memset(text, ' ', maxMetricWidth);
 
-        switch (m_metrics[FMEvent::Process][i].index) {
+        switch (m_metrics[QMEvent::Process][i].index) {
         case CpuUsage:
             integerMetricToText(m_processEvent.process.cpuUsage, text, textWidth);
             break;
@@ -349,8 +349,8 @@ void FMOverlay::updateProcessMetrics()
         }
 
         m_bitmapText.updateText(
-            text, m_metrics[FMEvent::Process][i].textIndex,
-            m_metrics[FMEvent::Process][i].width);
+            text, m_metrics[QMEvent::Process][i].textIndex,
+            m_metrics[QMEvent::Process][i].width);
     }
 }
 
@@ -430,7 +430,7 @@ static int cpuModel(char* buffer, int bufferSize)
 // buffer of size bufferSize, the terminating null byte ('\0') is not
 // written. Returns the number of characters written. Requires an OpenGL context
 // to be bound to the current thread.
-int FMOverlay::keywordString(int index, char* buffer, int bufferSize)
+int QMOverlay::keywordString(int index, char* buffer, int bufferSize)
 {
     DASSERT(index < KeywordCount);
     DASSERT(buffer);
@@ -507,7 +507,7 @@ int FMOverlay::keywordString(int index, char* buffer, int bufferSize)
     return size;
 }
 
-void FMOverlay::parseText()
+void QMOverlay::parseText()
 {
     QByteArray textLatin1 = m_text.toLatin1();
     const char* const text = textLatin1.constData();
@@ -556,7 +556,7 @@ void FMOverlay::parseText()
                 for (int j = 0; j < MetricCount; j++) {
                     const int type = metricInfo[j].type;
                     DASSERT(type >= 0);
-                    DASSERT(type < FMEvent::TypeCount);
+                    DASSERT(type < QMEvent::TypeCount);
                     if (m_metricsSize[type] < maxMetricsPerType &&
                         !strncmp(&text[i+1+widthOffset], metricInfo[j].name, metricInfo[j].size)) {
                         if (width == -1) {

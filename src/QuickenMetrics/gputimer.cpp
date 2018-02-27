@@ -1,31 +1,31 @@
-// Copyright © 2017 Loïc Molinari <loicm@loicm.fr>
+// Copyright © 2017-2018 Loïc Molinari <loicm@loicm.fr>
 // Copyright © 2016 Canonical Ltd.
 //
-// This file is part of Flupke.
+// This file is part of Quicken.
 //
-// Flupke is free software: you can redistribute it and/or modify it under the
+// Quicken is free software: you can redistribute it and/or modify it under the
 // terms of the GNU Lesser General Public License as published by the Free
 // Software Foundation; version 3.
 //
-// Flupke is distributed in the hope that it will be useful, but WITHOUT ANY
+// Quicken is distributed in the hope that it will be useful, but WITHOUT ANY
 // WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 // A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 // details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with Flupke. If not, see <http://www.gnu.org/licenses/>.
+// along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
 #include "gputimer_p.h"
 
 #include <QtCore/QElapsedTimer>
 
-#include "flupkemetricsglobal_p.h"
+#include "quickenmetricsglobal_p.h"
 
 #if !defined(QT_OPENGL_ES) && !defined(GL_TIME_ELAPSED)
 #define GL_TIME_ELAPSED 0x88BF  // For GL_EXT_timer_query.
 #endif
 
-void FMGPUTimer::initialize()
+void QMGPUTimer::initialize()
 {
     DASSERT(QOpenGLContext::currentContext());
     DASSERT(m_type == Unset);
@@ -55,7 +55,7 @@ void FMGPUTimer::initialize()
             EGLint (QOPENGLF_APIENTRYP)(EGLDisplay, EGLSyncKHR, EGLint, EGLTimeKHR)>(
                 eglGetProcAddress("eglClientWaitSyncKHR"));
         m_type = KHRFence;
-        DLOG("FMGPUTimer is based on GL_OES_EGL_sync");
+        DLOG("QMGPUTimer is based on GL_OES_EGL_sync");
 
     // NVFence.
     } else if (glExtensions.contains("GL_NV_fence")) {
@@ -70,7 +70,7 @@ void FMGPUTimer::initialize()
             eglGetProcAddress("glFinishFenceNV"));
         m_fenceNV.genFencesNV(2, m_fence);
         m_type = NVFence;
-        DLOG("FMGPUTimer is based on GL_NV_fence");
+        DLOG("QMGPUTimer is based on GL_NV_fence");
     }
 #else
     // We could use the thin QOpenGLTimerQuery wrapper from Qt 5.1, but the lack
@@ -96,7 +96,7 @@ void FMGPUTimer::initialize()
             context->getProcAddress("glQueryCounter"));
         m_timerQuery.genQueries(2, m_timer);
         m_type = ARBTimerQuery;
-        DLOG("FMGPUTimer is based on GL_ARB_timer_query");
+        DLOG("QMGPUTimer is based on GL_ARB_timer_query");
 
     // EXTTimerQuery.
     } else if (context->hasExtension(QByteArrayLiteral("GL_EXT_timer_query"))) {
@@ -114,17 +114,17 @@ void FMGPUTimer::initialize()
                 context->getProcAddress("glGetQueryObjectui64vEXT"));
         m_timerQuery.genQueries(1, m_timer);
         m_type = EXTTimerQuery;
-        DLOG("FMGPUTimer is based on GL_EXT_timer_query");
+        DLOG("QMGPUTimer is based on GL_EXT_timer_query");
     }
 #endif
 
     else {
         m_type = Finish;
-        DLOG("FMGPUTimer is based on glFinish");
+        DLOG("QMGPUTimer is based on glFinish");
     }
 }
 
-void FMGPUTimer::finalize()
+void QMGPUTimer::finalize()
 {
     DASSERT(m_context == QOpenGLContext::currentContext());
     DASSERT(m_type != Unset);
@@ -160,7 +160,7 @@ void FMGPUTimer::finalize()
 #endif
 }
 
-void FMGPUTimer::start()
+void QMGPUTimer::start()
 {
     DASSERT(m_context == QOpenGLContext::currentContext());
     DASSERT(m_type != Unset);
@@ -192,7 +192,7 @@ void FMGPUTimer::start()
 #endif
 }
 
-quint64 FMGPUTimer::stop()
+quint64 QMGPUTimer::stop()
 {
     DASSERT(m_context == QOpenGLContext::currentContext());
     DASSERT(m_type != Unset);

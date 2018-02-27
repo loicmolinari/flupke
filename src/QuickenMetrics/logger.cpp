@@ -1,19 +1,19 @@
-// Copyright © 2017 Loïc Molinari <loicm@loicm.fr>
+// Copyright © 2017-2018 Loïc Molinari <loicm@loicm.fr>
 // Copyright © 2016 Canonical Ltd.
 //
-// This file is part of Flupke.
+// This file is part of Quicken.
 //
-// Flupke is free software: you can redistribute it and/or modify it under the
+// Quicken is free software: you can redistribute it and/or modify it under the
 // terms of the GNU Lesser General Public License as published by the Free
 // Software Foundation; version 3.
 //
-// Flupke is distributed in the hope that it will be useful, but WITHOUT ANY
+// Quicken is distributed in the hope that it will be useful, but WITHOUT ANY
 // WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 // A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 // details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with Flupke. If not, see <http://www.gnu.org/licenses/>.
+// along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
 #include "logger_p.h"
 
@@ -21,14 +21,14 @@
 #include <QtCore/QTime>
 
 #include "events.h"
-#include "flupkemetricsglobal_p.h"
+#include "quickenmetricsglobal_p.h"
 
-FMFileLogger::FMFileLogger(const QString& fileName, bool parsable)
-    : d_ptr(new FMFileLoggerPrivate(fileName, parsable))
+QMFileLogger::QMFileLogger(const QString& fileName, bool parsable)
+    : d_ptr(new QMFileLoggerPrivate(fileName, parsable))
 {
 }
 
-FMFileLoggerPrivate::FMFileLoggerPrivate(const QString& fileName, bool parsable)
+QMFileLoggerPrivate::QMFileLoggerPrivate(const QString& fileName, bool parsable)
 {
     if (QDir::isRelativePath(fileName)) {
         m_file.setFileName(QString(QDir::currentPath() + QDir::separator() + fileName));
@@ -52,12 +52,12 @@ FMFileLoggerPrivate::FMFileLoggerPrivate(const QString& fileName, bool parsable)
     }
 }
 
-FMFileLogger::FMFileLogger(FILE* fileHandle, bool parsable)
-    : d_ptr(new FMFileLoggerPrivate(fileHandle, parsable))
+QMFileLogger::QMFileLogger(FILE* fileHandle, bool parsable)
+    : d_ptr(new QMFileLoggerPrivate(fileHandle, parsable))
 {
 }
 
-FMFileLoggerPrivate::FMFileLoggerPrivate(FILE* fileHandle, bool parsable)
+QMFileLoggerPrivate::QMFileLoggerPrivate(FILE* fileHandle, bool parsable)
 {
     if (m_file.open(fileHandle, QIODevice::WriteOnly | QIODevice::Text | QIODevice::Unbuffered)) {
         m_textStream.setDevice(&m_file);
@@ -65,7 +65,7 @@ FMFileLoggerPrivate::FMFileLoggerPrivate(FILE* fileHandle, bool parsable)
         m_textStream.setRealNumberPrecision(2);
         m_textStream.setRealNumberNotation(QTextStream::FixedNotation);
         if ((fileHandle == stdout || fileHandle == stderr) &&
-            !qEnvironmentVariableIsSet("FM_NO_LOGGER_COLOR")) {
+            !qEnvironmentVariableIsSet("QM_NO_LOGGER_COLOR")) {
             m_flags = Open | Colored;
         } else {
             m_flags = Open;
@@ -80,25 +80,25 @@ FMFileLoggerPrivate::FMFileLoggerPrivate(FILE* fileHandle, bool parsable)
     }
 }
 
-FMFileLogger::~FMFileLogger()
+QMFileLogger::~QMFileLogger()
 {
     delete d_ptr;
 }
 
-bool FMFileLogger::isOpen()
+bool QMFileLogger::isOpen()
 {
-    return !!(d_func()->m_flags & FMFileLoggerPrivate::Open);
+    return !!(d_func()->m_flags & QMFileLoggerPrivate::Open);
 }
 
 // FIXME(loicm) We should maybe get rid of QTextStream and directly write to the
 //     device for efficiency reasons.
 
-void FMFileLogger::log(const FMEvent& event)
+void QMFileLogger::log(const QMEvent& event)
 {
     d_func()->log(event);
 }
 
-void FMFileLoggerPrivate::log(const FMEvent& event)
+void QMFileLoggerPrivate::log(const QMEvent& event)
 {
     if (m_flags & Open) {
         // ANSI/VT100 terminal codes.
@@ -112,7 +112,7 @@ void FMFileLoggerPrivate::log(const FMEvent& event)
             : timeStamp.toString(QStringLiteral("hh:mm:ss:zzz"));
 
         switch (event.type) {
-        case FMEvent::Process: {
+        case QMEvent::Process: {
             if (m_flags & Parsable) {
                 m_textStream
                     << "P "
@@ -134,7 +134,7 @@ void FMFileLoggerPrivate::log(const FMEvent& event)
             break;
         }
 
-        case FMEvent::Frame:
+        case QMEvent::Frame:
             if (m_flags & Parsable) {
                 m_textStream
                     << "F "
@@ -160,7 +160,7 @@ void FMFileLoggerPrivate::log(const FMEvent& event)
             }
             break;
 
-        case FMEvent::Window: {
+        case QMEvent::Window: {
             if (m_flags & Parsable) {
                 m_textStream
                     << "W "
@@ -171,7 +171,7 @@ void FMFileLoggerPrivate::log(const FMEvent& event)
                     << event.window.height << '\n' << flush;
             } else {
                 const char* const stateString[] = { "Hidden", "Shown", "Resized" };
-                Q_STATIC_ASSERT(ARRAY_SIZE(stateString) == FMWindowEvent::StateCount);
+                Q_STATIC_ASSERT(ARRAY_SIZE(stateString) == QMWindowEvent::StateCount);
                 m_textStream
                     << (m_flags & Colored ? "\033[35mW\033[00m " : "W ")
                     << dim << timeString << reset << ' '
@@ -183,7 +183,7 @@ void FMFileLoggerPrivate::log(const FMEvent& event)
             break;
         }
 
-        case FMEvent::Generic: {
+        case QMEvent::Generic: {
             if (m_flags & Parsable) {
                 m_textStream
                     << "G "
@@ -208,18 +208,18 @@ void FMFileLoggerPrivate::log(const FMEvent& event)
     }
 }
 
-void FMFileLogger::setParsable(bool parsable)
+void QMFileLogger::setParsable(bool parsable)
 {
-    Q_D(FMFileLogger);
+    Q_D(QMFileLogger);
 
     if (parsable) {
-        d->m_flags |= FMFileLoggerPrivate::Parsable;
+        d->m_flags |= QMFileLoggerPrivate::Parsable;
     } else {
-        d->m_flags &= ~FMFileLoggerPrivate::Parsable;
+        d->m_flags &= ~QMFileLoggerPrivate::Parsable;
     }
 }
 
-bool FMFileLogger::parsable()
+bool QMFileLogger::parsable()
 {
-    return !!(d_func()->m_flags & FMFileLoggerPrivate::Parsable);
+    return !!(d_func()->m_flags & QMFileLoggerPrivate::Parsable);
 }
