@@ -639,14 +639,16 @@ int main(int argc, char ** argv)
             else if (lowerArgument == QLatin1String("--metrics-overlay"))
                 options.metricsOverlay = true;
             else if (lowerArgument == QLatin1String("--metrics-logging")) {
-                if (!arguments.at(i+1).startsWith(QLatin1Char('-'))
+                if ((i+1 < size)
+                    && !arguments.at(i+1).startsWith(QLatin1Char('-'))
                     && !arguments.at(i+1).endsWith(QString(".qml"))) {
                     options.metricsLogging = QString(argv[++i]);
                 } else {
                     options.metricsLogging = QLatin1String("stdout");
                 }
             } else if (lowerArgument == QLatin1String("--metrics-logging-filter")) {
-                if (!arguments.at(i+1).startsWith(QLatin1Char('-'))
+                if ((i+1 < size)
+                    && !arguments.at(i+1).startsWith(QLatin1Char('-'))
                     && !arguments.at(i+1).endsWith(QString(".qml"))) {
                     options.metricsLoggingFilter = QString(argv[++i]);
                 } else {
