@@ -48,13 +48,6 @@ public:
     };
     Q_DECLARE_FLAGS(LoggingFilters, LoggingFilter)
 
-    enum Event {
-        // Application defined event indicating that the initialisation is done
-        // and the UI ready. It can be used by tools to measure the time needed
-        // to start up an application.
-        UserInterfaceReady = 0
-    };
-
     // Get the unique QMApplicationMonitor instance. A QGuiApplication instance
     // must be running.
     static QMApplicationMonitor* instance() { return self ? self : new QMApplicationMonitor; }
@@ -87,10 +80,6 @@ public:
     // is disabled or if the logging filter does not contain GenericEvent.
     quint32 registerGenericEvent();
     bool logGenericEvent(quint32 id, const char* string, quint32 size);
-
-    // Log events predefined by the application monitor. Relies on the generic
-    // event system.
-    bool logEvent(Event event);
 
     // Set the time in milliseconds between two updates of events of a given
     // type. -1 to disable updates. Only QMEvent::Process is accepted so far as

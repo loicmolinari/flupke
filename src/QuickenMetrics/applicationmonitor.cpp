@@ -578,19 +578,6 @@ bool QMApplicationMonitor::logGenericEvent(quint32 id, const char* string, quint
     }
 }
 
-bool QMApplicationMonitor::logEvent(Event event)
-{
-    switch (event) {
-    case UserInterfaceReady: {
-        return logGenericEvent(0, "UserInterfaceReady", sizeof("UserInterfaceReady"));
-    }
-    default: {
-        DNOT_REACHED();
-        return false;
-    }
-    };
-}
-
 void QMApplicationMonitor::setUpdateInterval(QMEvent::Type type, int interval)
 {
     Q_D(QMApplicationMonitor);
