@@ -25,18 +25,18 @@
 #include <EGL/eglext.h>
 #endif
 
-#include <QuickenMetrics/private/quickenmetricsglobal_p.h>
+#include <QuickenPerf/private/quickenperfglobal_p.h>
 
-// QMGPUTimer is used to measure the amount of time taken by the GPU to fully
+// QPGPUTimer is used to measure the amount of time taken by the GPU to fully
 // complete a set of graphics commands. As opposed to a basic timer which would
 // determine the time taken by the graphics driver to push the graphics commands
 // in the command buffer from the CPU, this timer pushes dedicated
 // synchronization commands to the command buffer, which the GPU signals
 // whenever completed. That allows to get accurate GPU timings.
-class QUICKEN_METRICS_PRIVATE_EXPORT QMGPUTimer
+class QUICKEN_PERF_PRIVATE_EXPORT QPGPUTimer
 {
 public:
-    QMGPUTimer() :
+    QPGPUTimer() :
 #if !defined QT_NO_DEBUG
         m_context(nullptr), m_started(false),
 #endif

@@ -2,9 +2,9 @@
 
 Started as a dump of the interesting features developed for Ubuntu Touch, Quicken delivers additional libraries, plugins and tools for Qt Quick. Here's a quick summary of these.
 
-## QuickenMetrics library
+## QuickenPerf library
 
-QuickenMetrics is a library to monitor and show real-time performance metrics of Qt Quick applications. The metrics can be overlaid on the Qt Quick windows and/or logged to a file.
+QuickenPerf is a library to monitor and show real-time performance metrics of Qt Quick applications. The metrics can be overlaid on the Qt Quick windows and/or logged to a file.
 
 For now, there are 3 types of metrics:
 

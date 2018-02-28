@@ -2,13 +2,13 @@ TEMPLATE = subdirs
 
 # Libraries
 
-metrics_lib.subdir = QuickenMetrics
-metrics_lib.target = QuickenMetrics-lib
-SUBDIRS += metrics_lib
+perf_lib.subdir = QuickenPerf
+perf_lib.target = QuickenPerf-lib
+SUBDIRS += perf_lib
 
 # QML modules
 
-# metrics_module.subdir = imports/Metrics
-# metrics_module.target = metrics-module
-# metrics_module.depends = metrics-lib
-# SUBDIRS += metrics_module
+# perf_module.subdir = imports/Perf
+# perf_module.target = perf-module
+# perf_module.depends = perf-lib
+# SUBDIRS += perf_module

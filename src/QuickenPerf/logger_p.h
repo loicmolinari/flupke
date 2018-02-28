@@ -15,20 +15,34 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#include "quickenmetricsglobal_p.h"
+#ifndef LOGGER_P_H
+#define LOGGER_P_H
 
-void* alignedAlloc(size_t alignment, size_t size)
+#include <QuickenPerf/logger.h>
+
+#include <QtCore/QFile>
+#include <QtCore/QTextStream>
+
+#include <QuickenPerf/metrics.h>
+#include <QuickenPerf/private/quickenperfglobal_p.h>
+
+class QUICKEN_PERF_PRIVATE_EXPORT QPFileLoggerPrivate
 {
-    DASSERT(IS_POWER_OF_TWO(alignment));
-    // DASSERT(((size % alignment) == 0));  // FIXME(loicm) ASSERT doesn't support '%'...
+public:
+    enum {
+        Open     = (1 << 0),
+        Colored  = (1 << 1),
+        Parsable = (1 << 2)
+    };
 
-#if defined(__APPLE__)
-    void* pointer;
-    posix_memalign(&pointer, alignment, size);
-    return pointer;
-#elif defined(_WIN32)
-    return _aligned_malloc(size, alignment);
-#else
-    return aligned_alloc(alignment, size);
-#endif
-}
+    QPFileLoggerPrivate(const QString& fileName, bool parsable);
+    QPFileLoggerPrivate(FILE* fileHandle, bool parsable);
+
+    void log(const QPMetrics& metrics);
+
+    QFile m_file;
+    QTextStream m_textStream;
+    quint8 m_flags;
+};
+
+#endif  // LOGGER_P_H

@@ -25,7 +25,7 @@
 #define GL_TIME_ELAPSED 0x88BF  // For GL_EXT_timer_query.
 #endif
 
-void QMGPUTimer::initialize()
+void QPGPUTimer::initialize()
 {
     DASSERT(QOpenGLContext::currentContext());
     DASSERT(m_type == Unset);
@@ -55,7 +55,7 @@ void QMGPUTimer::initialize()
             EGLint (QOPENGLF_APIENTRYP)(EGLDisplay, EGLSyncKHR, EGLint, EGLTimeKHR)>(
                 eglGetProcAddress("eglClientWaitSyncKHR"));
         m_type = KHRFence;
-        DLOG("QMGPUTimer is based on GL_OES_EGL_sync");
+        DLOG("QPGPUTimer is based on GL_OES_EGL_sync");
 
     // NVFence.
     } else if (glExtensions.contains("GL_NV_fence")) {
@@ -70,7 +70,7 @@ void QMGPUTimer::initialize()
             eglGetProcAddress("glFinishFenceNV"));
         m_fenceNV.genFencesNV(2, m_fence);
         m_type = NVFence;
-        DLOG("QMGPUTimer is based on GL_NV_fence");
+        DLOG("QPGPUTimer is based on GL_NV_fence");
     }
 #else
     // We could use the thin QOpenGLTimerQuery wrapper from Qt 5.1, but the lack
@@ -96,7 +96,7 @@ void QMGPUTimer::initialize()
             context->getProcAddress("glQueryCounter"));
         m_timerQuery.genQueries(2, m_timer);
         m_type = ARBTimerQuery;
-        DLOG("QMGPUTimer is based on GL_ARB_timer_query");
+        DLOG("QPGPUTimer is based on GL_ARB_timer_query");
 
     // EXTTimerQuery.
     } else if (context->hasExtension(QByteArrayLiteral("GL_EXT_timer_query"))) {
@@ -114,17 +114,17 @@ void QMGPUTimer::initialize()
                 context->getProcAddress("glGetQueryObjectui64vEXT"));
         m_timerQuery.genQueries(1, m_timer);
         m_type = EXTTimerQuery;
-        DLOG("QMGPUTimer is based on GL_EXT_timer_query");
+        DLOG("QPGPUTimer is based on GL_EXT_timer_query");
     }
 #endif
 
     else {
         m_type = Finish;
-        DLOG("QMGPUTimer is based on glFinish");
+        DLOG("QPGPUTimer is based on glFinish");
     }
 }
 
-void QMGPUTimer::finalize()
+void QPGPUTimer::finalize()
 {
     DASSERT(m_context == QOpenGLContext::currentContext());
     DASSERT(m_type != Unset);
@@ -160,7 +160,7 @@ void QMGPUTimer::finalize()
 #endif
 }
 
-void QMGPUTimer::start()
+void QPGPUTimer::start()
 {
     DASSERT(m_context == QOpenGLContext::currentContext());
     DASSERT(m_type != Unset);
@@ -192,7 +192,7 @@ void QMGPUTimer::start()
 #endif
 }
 
-quint64 QMGPUTimer::stop()
+quint64 QPGPUTimer::stop()
 {
     DASSERT(m_context == QOpenGLContext::currentContext());
     DASSERT(m_type != Unset);

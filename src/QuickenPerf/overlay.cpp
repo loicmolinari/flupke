@@ -23,7 +23,7 @@
 #include <QtCore/QSysInfo>
 #include <QtGui/QGuiApplication>
 
-#include "quickenmetricsglobal_p.h"
+#include "quickenperfglobal_p.h"
 
 static const QPointF position = QPointF(5.0f, 5.0f);
 static const float opacity = 0.85f;
@@ -49,20 +49,20 @@ static const struct {
     const char* const name;
     quint16 size;
     quint16 defaultWidth;
-    QMEvent::Type type;
+    QPMetrics::Type type;
 } metricInfo[] = {
-    { "cpuUsage",    sizeof("cpuUsage") - 1,    3, QMEvent::Process },
-    { "threadCount", sizeof("threadCount") - 1, 3, QMEvent::Process },
-    { "vszMemory",   sizeof("vszMemory") - 1,   8, QMEvent::Process },
-    { "rssMemory",   sizeof("rssMemory") - 1,   8, QMEvent::Process },
-    { "windowId",    sizeof("windowId") - 1,    2, QMEvent::Window  },
-    { "windowSize",  sizeof("windowSize") - 1,  9, QMEvent::Window  },
-    { "frameNumber", sizeof("frameNumber") - 1, 7, QMEvent::Frame   },
-    { "deltaTime",   sizeof("deltaTime") - 1,   7, QMEvent::Frame   },
-    { "syncTime",    sizeof("syncTime") - 1,    7, QMEvent::Frame   },
-    { "renderTime",  sizeof("renderTime") - 1,  7, QMEvent::Frame   },
-    { "gpuTime",     sizeof("gpuTime") - 1,     7, QMEvent::Frame   },
-    { "totalTime",   sizeof("totalTime") - 1,   7, QMEvent::Frame   }
+    { "cpuUsage",    sizeof("cpuUsage") - 1,    3, QPMetrics::Process },
+    { "threadCount", sizeof("threadCount") - 1, 3, QPMetrics::Process },
+    { "vszMemory",   sizeof("vszMemory") - 1,   8, QPMetrics::Process },
+    { "rssMemory",   sizeof("rssMemory") - 1,   8, QPMetrics::Process },
+    { "windowId",    sizeof("windowId") - 1,    2, QPMetrics::Window  },
+    { "windowSize",  sizeof("windowSize") - 1,  9, QPMetrics::Window  },
+    { "frameNumber", sizeof("frameNumber") - 1, 7, QPMetrics::Frame   },
+    { "deltaTime",   sizeof("deltaTime") - 1,   7, QPMetrics::Frame   },
+    { "syncTime",    sizeof("syncTime") - 1,    7, QPMetrics::Frame   },
+    { "renderTime",  sizeof("renderTime") - 1,  7, QPMetrics::Frame   },
+    { "gpuTime",     sizeof("gpuTime") - 1,     7, QPMetrics::Frame   },
+    { "totalTime",   sizeof("totalTime") - 1,   7, QPMetrics::Frame   }
 };
 enum {
     CpuUsage = 0, ThreadCount, VszMemory, RssMemory, WindowId, WindowSize, FrameNumber, DeltaTime,
@@ -70,11 +70,11 @@ enum {
 };
 Q_STATIC_ASSERT(ARRAY_SIZE(metricInfo) == MetricCount);
 
-const int maxMetricWidth = 32;
+const int maxMetricsWidth = 32;
 const int maxKeywordStringSize = 128;
 const int bufferSize = 128;
 Q_STATIC_ASSERT(
-    bufferSize >= maxMetricWidth
+    bufferSize >= maxMetricsWidth
     && bufferSize >= maxKeywordStringSize);
 const int bufferAlignment = 64;
 
@@ -83,7 +83,7 @@ const int maxParsedTextSize = 1024;  // Including '\0'.
 static char cpuModelString[maxKeywordStringSize] = { 0 };
 static int cpuModelStringSize = 0;
 
-QMOverlay::QMOverlay(const char* text, int windowId)
+QPOverlay::QPOverlay(const char* text, int windowId)
     : m_parsedText(new char [maxParsedTextSize])
 #if !defined QT_NO_DEBUG
     , m_context(nullptr)
@@ -92,16 +92,16 @@ QMOverlay::QMOverlay(const char* text, int windowId)
     , m_metricsSize{}
     , m_frameSize(0, 0)
     , m_windowId(windowId)
-    , m_flags(DirtyText | DirtyProcessEvent)
+    , m_flags(DirtyText | DirtyProcessMetrics)
 {
     DASSERT(text);
 
     m_buffer = alignedAlloc(bufferAlignment, bufferSize);
-    memset(&m_processEvent, 0, sizeof(m_processEvent));
-    m_processEvent.type = QMEvent::Process;
+    memset(&m_processMetrics, 0, sizeof(m_processMetrics));
+    m_processMetrics.type = QPMetrics::Process;
 }
 
-QMOverlay::~QMOverlay()
+QPOverlay::~QPOverlay()
 {
     DASSERT(!(m_flags & Initialized));
 
@@ -109,7 +109,7 @@ QMOverlay::~QMOverlay()
     delete [] m_parsedText;
 }
 
-bool QMOverlay::initialize()
+bool QPOverlay::initialize()
 {
     DASSERT(!(m_flags & Initialized));
     DASSERT(QOpenGLContext::currentContext());
@@ -129,7 +129,7 @@ bool QMOverlay::initialize()
     }
 }
 
-void QMOverlay::finalize()
+void QPOverlay::finalize()
 {
     DASSERT(m_flags & Initialized);
     DASSERT(m_context == QOpenGLContext::currentContext());
@@ -142,15 +142,15 @@ void QMOverlay::finalize()
 #endif
 }
 
-void QMOverlay::setProcessEvent(const QMEvent& processEvent)
+void QPOverlay::setProcessMetrics(const QPMetrics& processMetrics)
 {
-    DASSERT(processEvent.type == QMEvent::Process);
+    DASSERT(processMetrics.type == QPMetrics::Process);
 
-    memcpy(&m_processEvent, &processEvent, sizeof(m_processEvent));
-    m_flags |= DirtyProcessEvent;
+    memcpy(&m_processMetrics, &processMetrics, sizeof(m_processMetrics));
+    m_flags |= DirtyProcessMetrics;
 }
 
-void QMOverlay::render(const QMEvent& frameEvent, const QSize& frameSize)
+void QPOverlay::render(const QPMetrics& frameMetrics, const QSize& frameSize)
 {
     DASSERT(m_flags & Initialized);
     DASSERT(m_context == QOpenGLContext::currentContext());
@@ -166,11 +166,11 @@ void QMOverlay::render(const QMEvent& frameEvent, const QSize& frameSize)
         m_bitmapText.setTransform(frameSize, position);
         m_frameSize = frameSize;
     }
-    if (m_flags & DirtyProcessEvent) {
+    if (m_flags & DirtyProcessMetrics) {
         updateProcessMetrics();
-        m_flags &= ~DirtyProcessEvent;
+        m_flags &= ~DirtyProcessMetrics;
     }
-    updateFrameMetrics(frameEvent);
+    updateFrameMetrics(frameMetrics);
     m_bitmapText.render();
 }
 
@@ -233,33 +233,33 @@ static int timeMetricToText(quint64 metric, char* text, int width)
     return width;
 }
 
-void QMOverlay::updateFrameMetrics(const QMEvent& event)
+void QPOverlay::updateFrameMetrics(const QPMetrics& metrics)
 {
     DASSERT(m_flags & Initialized);
-    Q_STATIC_ASSERT(IS_POWER_OF_TWO(maxMetricWidth));
+    Q_STATIC_ASSERT(IS_POWER_OF_TWO(maxMetricsWidth));
 
     char* text = static_cast<char*>(m_buffer);
-    for (int i = 0; i < m_metricsSize[QMEvent::Frame]; i++) {
-        int textWidth = m_metrics[QMEvent::Frame][i].width;
-        DASSERT(textWidth <= maxMetricWidth);
-        memset(text, ' ', maxMetricWidth);
+    for (int i = 0; i < m_metricsSize[QPMetrics::Frame]; i++) {
+        int textWidth = m_metrics[QPMetrics::Frame][i].width;
+        DASSERT(textWidth <= maxMetricsWidth);
+        memset(text, ' ', maxMetricsWidth);
 
-        switch (m_metrics[QMEvent::Frame][i].index) {
+        switch (m_metrics[QPMetrics::Frame][i].index) {
         case FrameNumber:
-            integerMetricToText(event.frame.number, text, textWidth);
+            integerMetricToText(metrics.frame.number, text, textWidth);
             break;
         case DeltaTime:
-            timeMetricToText(event.frame.deltaTime, text, textWidth);
+            timeMetricToText(metrics.frame.deltaTime, text, textWidth);
             break;
         case SyncTime:
-            timeMetricToText(event.frame.syncTime, text, textWidth);
+            timeMetricToText(metrics.frame.syncTime, text, textWidth);
             break;
         case RenderTime:
-            timeMetricToText(event.frame.renderTime, text, textWidth);
+            timeMetricToText(metrics.frame.renderTime, text, textWidth);
             break;
         case GpuTime:
-            if (event.frame.gpuTime > 0) {
-                timeMetricToText(event.frame.gpuTime, text, textWidth);
+            if (metrics.frame.gpuTime > 0) {
+                timeMetricToText(metrics.frame.gpuTime, text, textWidth);
             } else {
                 const char* const na = "N/A";
                 int naSize = sizeof("N/A") - 1;
@@ -268,7 +268,7 @@ void QMOverlay::updateFrameMetrics(const QMEvent& event)
             break;
         case TotalTime: {
             const quint64 time =
-                event.frame.syncTime + event.frame.renderTime + event.frame.gpuTime;
+                metrics.frame.syncTime + metrics.frame.renderTime + metrics.frame.gpuTime;
             timeMetricToText(time, text, textWidth);
             break;
         }
@@ -278,23 +278,23 @@ void QMOverlay::updateFrameMetrics(const QMEvent& event)
         }
 
         m_bitmapText.updateText(
-            text, m_metrics[QMEvent::Frame][i].textIndex,
-            m_metrics[QMEvent::Frame][i].width);
+            text, m_metrics[QPMetrics::Frame][i].textIndex,
+            m_metrics[QPMetrics::Frame][i].width);
     }
 }
 
-void QMOverlay::updateWindowMetrics(quint32 windowId, const QSize& frameSize)
+void QPOverlay::updateWindowMetrics(quint32 windowId, const QSize& frameSize)
 {
     DASSERT(m_flags & Initialized);
-    Q_STATIC_ASSERT(IS_POWER_OF_TWO(maxMetricWidth));
+    Q_STATIC_ASSERT(IS_POWER_OF_TWO(maxMetricsWidth));
 
     char* text = static_cast<char*>(m_buffer);
-    for (int i = 0; i < m_metricsSize[QMEvent::Window]; i++) {
-        int textWidth = m_metrics[QMEvent::Window][i].width;
-        DASSERT(textWidth <= maxMetricWidth);
-        memset(text, ' ', maxMetricWidth);
+    for (int i = 0; i < m_metricsSize[QPMetrics::Window]; i++) {
+        int textWidth = m_metrics[QPMetrics::Window][i].width;
+        DASSERT(textWidth <= maxMetricsWidth);
+        memset(text, ' ', maxMetricsWidth);
 
-        switch (m_metrics[QMEvent::Window][i].index) {
+        switch (m_metrics[QPMetrics::Window][i].index) {
         case WindowId:
             textWidth = integerMetricToText(windowId, text, textWidth);
             break;
@@ -314,34 +314,34 @@ void QMOverlay::updateWindowMetrics(quint32 windowId, const QSize& frameSize)
         }
 
         m_bitmapText.updateText(
-            text, m_metrics[QMEvent::Window][i].textIndex,
-            m_metrics[QMEvent::Window][i].width);
+            text, m_metrics[QPMetrics::Window][i].textIndex,
+            m_metrics[QPMetrics::Window][i].width);
     }
 }
 
-void QMOverlay::updateProcessMetrics()
+void QPOverlay::updateProcessMetrics()
 {
     DASSERT(m_flags & Initialized);
-    Q_STATIC_ASSERT(IS_POWER_OF_TWO(maxMetricWidth));
+    Q_STATIC_ASSERT(IS_POWER_OF_TWO(maxMetricsWidth));
 
     char* text = static_cast<char*>(m_buffer);
-    for (int i = 0; i < m_metricsSize[QMEvent::Process]; i++) {
-        int textWidth = m_metrics[QMEvent::Process][i].width;
-        DASSERT(textWidth <= maxMetricWidth);
-        memset(text, ' ', maxMetricWidth);
+    for (int i = 0; i < m_metricsSize[QPMetrics::Process]; i++) {
+        int textWidth = m_metrics[QPMetrics::Process][i].width;
+        DASSERT(textWidth <= maxMetricsWidth);
+        memset(text, ' ', maxMetricsWidth);
 
-        switch (m_metrics[QMEvent::Process][i].index) {
+        switch (m_metrics[QPMetrics::Process][i].index) {
         case CpuUsage:
-            integerMetricToText(m_processEvent.process.cpuUsage, text, textWidth);
+            integerMetricToText(m_processMetrics.process.cpuUsage, text, textWidth);
             break;
         case ThreadCount:
-            integerMetricToText(m_processEvent.process.threadCount, text, textWidth);
+            integerMetricToText(m_processMetrics.process.threadCount, text, textWidth);
             break;
         case VszMemory:
-            integerMetricToText(m_processEvent.process.vszMemory, text, textWidth);
+            integerMetricToText(m_processMetrics.process.vszMemory, text, textWidth);
             break;
         case RssMemory:
-            integerMetricToText(m_processEvent.process.rssMemory, text, textWidth);
+            integerMetricToText(m_processMetrics.process.rssMemory, text, textWidth);
             break;
         default:
             DNOT_REACHED();
@@ -349,8 +349,8 @@ void QMOverlay::updateProcessMetrics()
         }
 
         m_bitmapText.updateText(
-            text, m_metrics[QMEvent::Process][i].textIndex,
-            m_metrics[QMEvent::Process][i].width);
+            text, m_metrics[QPMetrics::Process][i].textIndex,
+            m_metrics[QPMetrics::Process][i].width);
     }
 }
 
@@ -430,7 +430,7 @@ static int cpuModel(char* buffer, int bufferSize)
 // buffer of size bufferSize, the terminating null byte ('\0') is not
 // written. Returns the number of characters written. Requires an OpenGL context
 // to be bound to the current thread.
-int QMOverlay::keywordString(int index, char* buffer, int bufferSize)
+int QPOverlay::keywordString(int index, char* buffer, int bufferSize)
 {
     DASSERT(index < KeywordCount);
     DASSERT(buffer);
@@ -507,7 +507,7 @@ int QMOverlay::keywordString(int index, char* buffer, int bufferSize)
     return size;
 }
 
-void QMOverlay::parseText()
+void QPOverlay::parseText()
 {
     QByteArray textLatin1 = m_text.toLatin1();
     const char* const text = textLatin1.constData();
@@ -551,12 +551,12 @@ void QMOverlay::parseText()
                         width = width * 10 + text[i+1+widthOffset] - '0';
                         widthOffset++;
                     }
-                    width = qBound(1, width, maxMetricWidth);
+                    width = qBound(1, width, maxMetricsWidth);
                 }
                 for (int j = 0; j < MetricCount; j++) {
                     const int type = metricInfo[j].type;
                     DASSERT(type >= 0);
-                    DASSERT(type < QMEvent::TypeCount);
+                    DASSERT(type < QPMetrics::TypeCount);
                     if (m_metricsSize[type] < maxMetricsPerType &&
                         !strncmp(&text[i+1+widthOffset], metricInfo[j].name, metricInfo[j].size)) {
                         if (width == -1) {

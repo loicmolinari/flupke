@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#include "events_p.h"
+#include "metrics_p.h"
 
 #include <string.h>
 #include <unistd.h>
@@ -24,17 +24,17 @@
 
 #include <QtCore/QElapsedTimer>
 
-#include "quickenmetricsglobal_p.h"
+#include "quickenperfglobal_p.h"
 
 const int bufferSize = 128;
 const int bufferAlignment = 64;
 
-QMEventUtils::QMEventUtils()
-    : d_ptr(new QMEventUtilsPrivate)
+QPMetricsUtils::QPMetricsUtils()
+    : d_ptr(new QPMetricsUtilsPrivate)
 {
 }
 
-QMEventUtilsPrivate::QMEventUtilsPrivate()
+QPMetricsUtilsPrivate::QPMetricsUtilsPrivate()
 {
 #if !defined(QT_NO_DEBUG)
     ASSERT(m_buffer = static_cast<char*>(alignedAlloc(bufferAlignment, bufferSize)));
@@ -47,28 +47,28 @@ QMEventUtilsPrivate::QMEventUtilsPrivate()
     m_pageSize = sysconf(_SC_PAGESIZE);
 }
 
-QMEventUtils::~QMEventUtils()
+QPMetricsUtils::~QPMetricsUtils()
 {
     delete d_ptr;
 }
 
-QMEventUtilsPrivate::~QMEventUtilsPrivate()
+QPMetricsUtilsPrivate::~QPMetricsUtilsPrivate()
 {
     free(m_buffer);
 }
 
-void QMEventUtils::updateProcessEvent(QMEvent* event)
+void QPMetricsUtils::updateProcessMetrics(QPMetrics* metrics)
 {
-    DASSERT(event);
-    Q_D(QMEventUtils);
+    DASSERT(metrics);
+    Q_D(QPMetricsUtils);
 
-    event->type = QMEvent::Process;
-    event->timeStamp = QMEventUtils::timeStamp();
-    d->updateCpuUsage(event);
-    d->updateProcStatMetrics(event);
+    metrics->type = QPMetrics::Process;
+    metrics->timeStamp = QPMetricsUtils::timeStamp();
+    d->updateCpuUsage(metrics);
+    d->updateProcStatMetrics(metrics);
 }
 
-void QMEventUtilsPrivate::updateCpuUsage(QMEvent* event)
+void QPMetricsUtilsPrivate::updateCpuUsage(QPMetrics* metrics)
 {
     // times() is a Linux syscall giving CPU times used by the process. The
     // granularity of the unit returned by the (some?) kernel (clock ticks)
@@ -81,23 +81,23 @@ void QMEventUtilsPrivate::updateCpuUsage(QMEvent* event)
         const clock_t ticks = newTicks - m_cpuTicks;
         const clock_t userTime = newCpuTimes.tms_utime - m_cpuTimes.tms_utime;
         const clock_t systemTime = newCpuTimes.tms_stime - m_cpuTimes.tms_stime;
-        event->process.cpuUsage = ((userTime + systemTime) * 100) / (ticks * m_cpuOnlineCores);
+        metrics->process.cpuUsage = ((userTime + systemTime) * 100) / (ticks * m_cpuOnlineCores);
         m_cpuTimer.start();
         memcpy(&m_cpuTimes, &newCpuTimes, sizeof(struct tms));
         m_cpuTicks = newTicks;
     }
 }
 
-void QMEventUtilsPrivate::updateProcStatMetrics(QMEvent* event)
+void QPMetricsUtilsPrivate::updateProcStatMetrics(QPMetrics* metrics)
 {
     int fd = open("/proc/self/stat", O_RDONLY);
     if (fd == -1) {
-        DWARN("EventUtils: can't open '/proc/self/stat'");
+        DWARN("MetricsUtils: can't open '/proc/self/stat'");
         return;
     }
     int readSize;
     if ((readSize = read(fd, m_buffer, bufferSize)) == 0) {
-        DWARN("EventUtils: can't read '/proc/self/stat'");
+        DWARN("MetricsUtils: can't read '/proc/self/stat'");
         close(fd);
         return;
     }
@@ -138,15 +138,15 @@ void QMEventUtilsPrivate::updateProcStatMetrics(QMEvent* event)
     sscanf(&m_buffer[entryIndices[vsizeEntry-1]], "%lu %ld", &vsize, &rss);
 #endif
 
-    event->process.vszMemory = vsize >> 10;
-    event->process.rssMemory = (rss * m_pageSize) >> 10;
-    event->process.threadCount = threadCount;
+    metrics->process.vszMemory = vsize >> 10;
+    metrics->process.rssMemory = (rss * m_pageSize) >> 10;
+    metrics->process.threadCount = threadCount;
 
     close(fd);
 }
 
 // static.
-quint64 QMEventUtils::timeStamp()
+quint64 QPMetricsUtils::timeStamp()
 {
     static QElapsedTimer timer;
 

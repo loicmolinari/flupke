@@ -15,32 +15,15 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef EVENTS_P_H
-#define EVENTS_P_H
+#ifndef QUICKENPERFGLOBAL_H
+#define QUICKENPERFGLOBAL_H
 
-#include <QuickenMetrics/events.h>
+#include <QtCore/QtGlobal>
 
-#include <sys/times.h>
+#if defined(QT_BUILD_QUICKENPERF_LIB)
+#define QUICKEN_PERF_EXPORT Q_DECL_EXPORT
+#else
+#define QUICKEN_PERF_EXPORT Q_DECL_IMPORT
+#endif
 
-#include <QtCore/QElapsedTimer>
-
-#include <QuickenMetrics/private/quickenmetricsglobal_p.h>
-
-class QUICKEN_METRICS_PRIVATE_EXPORT QMEventUtilsPrivate
-{
-public:
-    QMEventUtilsPrivate();
-    ~QMEventUtilsPrivate();
-
-    void updateCpuUsage(QMEvent* event);
-    void updateProcStatMetrics(QMEvent* event);
-
-    char* m_buffer;
-    QElapsedTimer m_cpuTimer;
-    struct tms m_cpuTimes;
-    clock_t m_cpuTicks;
-    quint16 m_cpuOnlineCores;
-    quint16 m_pageSize;
-};
-
-#endif  // EVENTS_P_H
+#endif  // QUICKENPERFGLOBAL_H

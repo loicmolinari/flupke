@@ -12,7 +12,7 @@ When including Qt or Quicken headers, always prefix with the project name. Use:
 
 ```C++
 #include <QtCore/QMap>
-#include <QuickenMetrics/applicationmonitor.h>
+#include <QuickenPerf/applicationmonitor.h>
 ```
 
 not
@@ -45,7 +45,7 @@ included in ordered sections, separated by an empty line, as follows:
 #include <QtCore/private/qobject_p.h>
 #include <QtGui/QWindow>
 #include <QtGui/private/qcolor_p.h>
-#include <QuickenMetrics/applicationmonitor.h>
+#include <QuickenPerf/applicationmonitor.h>
 
 // Other libraries' headers.
 #include <gst/gst.h>

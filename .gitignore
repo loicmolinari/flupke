@@ -9,5 +9,5 @@ bin/
 include/
 lib/
 mkspecs/
-src/QuickenMetrics/QuickenMetrics.version
-src/QuickenMetrics/QuickenMetrics.version.in
+src/QuickenPerf/QuickenPerf.version
+src/QuickenPerf/QuickenPerf.version.in

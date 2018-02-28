@@ -20,20 +20,20 @@
 
 #include <QtCore/QSize>
 
-#include <QuickenMetrics/events.h>
-#include <QuickenMetrics/private/bitmaptext_p.h>
-#include <QuickenMetrics/private/quickenmetricsglobal_p.h>
+#include <QuickenPerf/metrics.h>
+#include <QuickenPerf/private/bitmaptext_p.h>
+#include <QuickenPerf/private/quickenperfglobal_p.h>
 
 #if !defined QT_NO_DEBUG
 class QOpenGLContext;
 #endif
 
 // Renders an overlay based on various metrics.
-class QUICKEN_METRICS_PRIVATE_EXPORT QMOverlay
+class QUICKEN_PERF_PRIVATE_EXPORT QPOverlay
 {
 public:
-    QMOverlay(const char* text, int windowId);
-    ~QMOverlay();
+    QPOverlay(const char* text, int windowId);
+    ~QPOverlay();
 
     // Allocates/Deletes the OpenGL resources. finalize() is not called at
     // destruction, it must be explicitly called to free the resources at the
@@ -42,24 +42,24 @@ public:
     bool initialize();
     void finalize();
 
-    // Sets the process event.
-    void setProcessEvent(const QMEvent& processEvent);
+    // Sets the process metrics.
+    void setProcessMetrics(const QPMetrics& processMetrics);
 
     // Renders the overlay. Must be called in a thread with the same OpenGL
     // context bound than at initialize().
-    void render(const QMEvent& frameEvent, const QSize& frameSize);
+    void render(const QPMetrics& frameMetrics, const QSize& frameSize);
 
 private:
-    void updateFrameMetrics(const QMEvent& frameEvent);
+    void updateFrameMetrics(const QPMetrics& frameMetrics);
     void updateWindowMetrics(quint32 windowId, const QSize& frameSize);
     void updateProcessMetrics();
     int keywordString(int index, char* buffer, int bufferSize);
     void parseText();
 
     enum {
-        Initialized       = (1 << 0),
-        DirtyText         = (1 << 1),
-        DirtyProcessEvent = (1 << 2)
+        Initialized         = (1 << 0),
+        DirtyText           = (1 << 1),
+        DirtyProcessMetrics = (1 << 2)
     };
 
     static const int maxMetricsPerType = 16;
@@ -74,13 +74,13 @@ private:
         quint16 index;
         quint16 textIndex;
         quint8 width;
-    } m_metrics[QMEvent::TypeCount][maxMetricsPerType];
-    quint8 m_metricsSize[QMEvent::TypeCount];
-    QMBitmapText m_bitmapText;
+    } m_metrics[QPMetrics::TypeCount][maxMetricsPerType];
+    quint8 m_metricsSize[QPMetrics::TypeCount];
+    QPBitmapText m_bitmapText;
     QSize m_frameSize;
     quint32 m_windowId;
     quint8 m_flags;
-    alignas(64) QMEvent m_processEvent;
+    alignas(64) QPMetrics m_processMetrics;
 };
 
 #endif  // OVERLAY_P_H

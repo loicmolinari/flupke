@@ -15,15 +15,32 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef QUICKENMETRICSGLOBAL_H
-#define QUICKENMETRICSGLOBAL_H
+#ifndef METRICS_P_H
+#define METRICS_P_H
 
-#include <QtCore/QtGlobal>
+#include <QuickenPerf/metrics.h>
 
-#if defined(QT_BUILD_QUICKENMETRICS_LIB)
-#define QUICKEN_METRICS_EXPORT Q_DECL_EXPORT
-#else
-#define QUICKEN_METRICS_EXPORT Q_DECL_IMPORT
-#endif
+#include <sys/times.h>
 
-#endif  // QUICKENMETRICSGLOBAL_H
+#include <QtCore/QElapsedTimer>
+
+#include <QuickenPerf/private/quickenmetricsglobal_p.h>
+
+class QUICKEN_PERF_PRIVATE_EXPORT QPMetricsUtilsPrivate
+{
+public:
+    QPMetricsUtilsPrivate();
+    ~QPMetricsUtilsPrivate();
+
+    void updateCpuUsage(QPMetrics* metrics);
+    void updateProcStatMetrics(QPMetrics* metrics);
+
+    char* m_buffer;
+    QElapsedTimer m_cpuTimer;
+    struct tms m_cpuTimes;
+    clock_t m_cpuTicks;
+    quint16 m_cpuOnlineCores;
+    quint16 m_pageSize;
+};
+
+#endif  // METRICS_P_H

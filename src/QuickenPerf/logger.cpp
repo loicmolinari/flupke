@@ -20,15 +20,15 @@
 #include <QtCore/QDir>
 #include <QtCore/QTime>
 
-#include "events.h"
+#include "metrics.h"
 #include "quickenmetricsglobal_p.h"
 
-QMFileLogger::QMFileLogger(const QString& fileName, bool parsable)
-    : d_ptr(new QMFileLoggerPrivate(fileName, parsable))
+QPFileLogger::QPFileLogger(const QString& fileName, bool parsable)
+    : d_ptr(new QPFileLoggerPrivate(fileName, parsable))
 {
 }
 
-QMFileLoggerPrivate::QMFileLoggerPrivate(const QString& fileName, bool parsable)
+QPFileLoggerPrivate::QPFileLoggerPrivate(const QString& fileName, bool parsable)
 {
     if (QDir::isRelativePath(fileName)) {
         m_file.setFileName(QString(QDir::currentPath() + QDir::separator() + fileName));
@@ -52,12 +52,12 @@ QMFileLoggerPrivate::QMFileLoggerPrivate(const QString& fileName, bool parsable)
     }
 }
 
-QMFileLogger::QMFileLogger(FILE* fileHandle, bool parsable)
-    : d_ptr(new QMFileLoggerPrivate(fileHandle, parsable))
+QPFileLogger::QPFileLogger(FILE* fileHandle, bool parsable)
+    : d_ptr(new QPFileLoggerPrivate(fileHandle, parsable))
 {
 }
 
-QMFileLoggerPrivate::QMFileLoggerPrivate(FILE* fileHandle, bool parsable)
+QPFileLoggerPrivate::QPFileLoggerPrivate(FILE* fileHandle, bool parsable)
 {
     if (m_file.open(fileHandle, QIODevice::WriteOnly | QIODevice::Text | QIODevice::Unbuffered)) {
         m_textStream.setDevice(&m_file);
@@ -65,7 +65,7 @@ QMFileLoggerPrivate::QMFileLoggerPrivate(FILE* fileHandle, bool parsable)
         m_textStream.setRealNumberPrecision(2);
         m_textStream.setRealNumberNotation(QTextStream::FixedNotation);
         if ((fileHandle == stdout || fileHandle == stderr) &&
-            !qEnvironmentVariableIsSet("QM_NO_LOGGER_COLOR")) {
+            !qEnvironmentVariableIsSet("QP_NO_LOGGER_COLOR")) {
             m_flags = Open | Colored;
         } else {
             m_flags = Open;
@@ -80,25 +80,25 @@ QMFileLoggerPrivate::QMFileLoggerPrivate(FILE* fileHandle, bool parsable)
     }
 }
 
-QMFileLogger::~QMFileLogger()
+QPFileLogger::~QPFileLogger()
 {
     delete d_ptr;
 }
 
-bool QMFileLogger::isOpen()
+bool QPFileLogger::isOpen()
 {
-    return !!(d_func()->m_flags & QMFileLoggerPrivate::Open);
+    return !!(d_func()->m_flags & QPFileLoggerPrivate::Open);
 }
 
 // FIXME(loicm) We should maybe get rid of QTextStream and directly write to the
 //     device for efficiency reasons.
 
-void QMFileLogger::log(const QMEvent& event)
+void QPFileLogger::log(const QPMetrics& metrics)
 {
-    d_func()->log(event);
+    d_func()->log(metrics);
 }
 
-void QMFileLoggerPrivate::log(const QMEvent& event)
+void QPFileLoggerPrivate::log(const QPMetrics& metrics)
 {
     if (m_flags & Open) {
         // ANSI/VT100 terminal codes.
@@ -106,96 +106,96 @@ void QMFileLoggerPrivate::log(const QMEvent& event)
         const char* const reset = m_flags & Colored ? "\033[00m" : "";
         const char* const dimColon = m_flags & Colored ? "\033[02m:\033[00m" : "=";
 
-        QTime timeStamp = QTime(0, 0).addMSecs(event.timeStamp / 1000000);
+        QTime timeStamp = QTime(0, 0).addMSecs(metrics.timeStamp / 1000000);
         QString timeString = !timeStamp.hour()
             ? timeStamp.toString(QStringLiteral("mm:ss:zzz"))
             : timeStamp.toString(QStringLiteral("hh:mm:ss:zzz"));
 
-        switch (event.type) {
-        case QMEvent::Process: {
+        switch (metrics.type) {
+        case QPMetrics::Process: {
             if (m_flags & Parsable) {
                 m_textStream
                     << "P "
-                    << event.timeStamp << ' '
-                    << event.process.cpuUsage << ' '
-                    << event.process.vszMemory << ' '
-                    << event.process.rssMemory << ' '
-                    << event.process.threadCount << '\n' << flush;
+                    << metrics.timeStamp << ' '
+                    << metrics.process.cpuUsage << ' '
+                    << metrics.process.vszMemory << ' '
+                    << metrics.process.rssMemory << ' '
+                    << metrics.process.threadCount << '\n' << flush;
             } else {
                 m_textStream
                     << (m_flags & Colored ? "\033[33mP\033[00m " : "P ")
                     << dim << timeString << reset << ' '
-                    << "CPU" << dimColon << event.process.cpuUsage << "% "
-                    << "VSZ" << dimColon << event.process.vszMemory << "kB "
-                    << "RSS" << dimColon << event.process.rssMemory << "kB "
-                    << "Threads" << dimColon << event.process.threadCount
+                    << "CPU" << dimColon << metrics.process.cpuUsage << "% "
+                    << "VSZ" << dimColon << metrics.process.vszMemory << "kB "
+                    << "RSS" << dimColon << metrics.process.rssMemory << "kB "
+                    << "Threads" << dimColon << metrics.process.threadCount
                     << '\n' << flush;
             }
             break;
         }
 
-        case QMEvent::Frame:
+        case QPMetrics::Frame:
             if (m_flags & Parsable) {
                 m_textStream
                     << "F "
-                    << event.timeStamp << ' '
-                    << event.frame.window << ' '
-                    << event.frame.number << ' '
-                    << event.frame.deltaTime << ' '
-                    << event.frame.syncTime << ' '
-                    << event.frame.renderTime << ' '
-                    << event.frame.gpuTime << ' '
-                    << event.frame.swapTime << '\n' << flush;
+                    << metrics.timeStamp << ' '
+                    << metrics.frame.window << ' '
+                    << metrics.frame.number << ' '
+                    << metrics.frame.deltaTime << ' '
+                    << metrics.frame.syncTime << ' '
+                    << metrics.frame.renderTime << ' '
+                    << metrics.frame.gpuTime << ' '
+                    << metrics.frame.swapTime << '\n' << flush;
             } else {
                 m_textStream
                     << (m_flags & Colored ? "\033[36mF\033[00m " : "F ")
                     << dim << timeString << reset << ' '
-                    << "Win" << dimColon << event.frame.window << ' '
-                    << "N" << dimColon << event.frame.number << ' '
-                    << "Delta" << dimColon << event.frame.deltaTime / 1000000.0f << "ms "
-                    << "Sync" << dimColon << event.frame.syncTime / 1000000.0f << "ms "
-                    << "Render" << dimColon << event.frame.renderTime / 1000000.0f << "ms "
-                    << "GPU" << dimColon << event.frame.gpuTime / 1000000.0f << "ms "
-                    << "Swap" << dimColon << event.frame.swapTime / 1000000.0f << "ms\n" << flush;
+                    << "Win" << dimColon << metrics.frame.window << ' '
+                    << "N" << dimColon << metrics.frame.number << ' '
+                    << "Delta" << dimColon << metrics.frame.deltaTime / 1000000.0f << "ms "
+                    << "Sync" << dimColon << metrics.frame.syncTime / 1000000.0f << "ms "
+                    << "Render" << dimColon << metrics.frame.renderTime / 1000000.0f << "ms "
+                    << "GPU" << dimColon << metrics.frame.gpuTime / 1000000.0f << "ms "
+                    << "Swap" << dimColon << metrics.frame.swapTime / 1000000.0f << "ms\n" << flush;
             }
             break;
 
-        case QMEvent::Window: {
+        case QPMetrics::Window: {
             if (m_flags & Parsable) {
                 m_textStream
                     << "W "
-                    << event.timeStamp << ' '
-                    << event.window.id << ' '
-                    << event.window.state << ' '
-                    << event.window.width << ' '
-                    << event.window.height << '\n' << flush;
+                    << metrics.timeStamp << ' '
+                    << metrics.window.id << ' '
+                    << metrics.window.state << ' '
+                    << metrics.window.width << ' '
+                    << metrics.window.height << '\n' << flush;
             } else {
                 const char* const stateString[] = { "Hidden", "Shown", "Resized" };
-                Q_STATIC_ASSERT(ARRAY_SIZE(stateString) == QMWindowEvent::StateCount);
+                Q_STATIC_ASSERT(ARRAY_SIZE(stateString) == QPWindowMetrics::StateCount);
                 m_textStream
                     << (m_flags & Colored ? "\033[35mW\033[00m " : "W ")
                     << dim << timeString << reset << ' '
-                    << "Id" << dimColon << event.window.id << ' '
-                    << "State" << dimColon << stateString[event.window.state] << ' '
-                    << "Size" << dimColon << event.window.width << 'x' << event.window.height
+                    << "Id" << dimColon << metrics.window.id << ' '
+                    << "State" << dimColon << stateString[metrics.window.state] << ' '
+                    << "Size" << dimColon << metrics.window.width << 'x' << metrics.window.height
                     << '\n' << flush;
             }
             break;
         }
 
-        case QMEvent::Generic: {
+        case QPMetrics::Generic: {
             if (m_flags & Parsable) {
                 m_textStream
                     << "G "
-                    << event.timeStamp << ' '
-                    << event.generic.id << ' '
-                    << event.generic.string << '\n' << flush;
+                    << metrics.timeStamp << ' '
+                    << metrics.generic.id << ' '
+                    << metrics.generic.string << '\n' << flush;
             } else {
                 m_textStream
                     << (m_flags & Colored ? "\033[32mG\033[00m " : "G ")
                     << dim << timeString << reset << ' '
-                    << "Id" << dimColon << event.generic.id << ' '
-                    << "String" << dimColon << '"' << event.generic.string << '"'
+                    << "Id" << dimColon << metrics.generic.id << ' '
+                    << "String" << dimColon << '"' << metrics.generic.string << '"'
                     << '\n' << flush;
             }
             break;
@@ -208,18 +208,18 @@ void QMFileLoggerPrivate::log(const QMEvent& event)
     }
 }
 
-void QMFileLogger::setParsable(bool parsable)
+void QPFileLogger::setParsable(bool parsable)
 {
-    Q_D(QMFileLogger);
+    Q_D(QPFileLogger);
 
     if (parsable) {
-        d->m_flags |= QMFileLoggerPrivate::Parsable;
+        d->m_flags |= QPFileLoggerPrivate::Parsable;
     } else {
-        d->m_flags &= ~QMFileLoggerPrivate::Parsable;
+        d->m_flags &= ~QPFileLoggerPrivate::Parsable;
     }
 }
 
-bool QMFileLogger::parsable()
+bool QPFileLogger::parsable()
 {
-    return !!(d_func()->m_flags & QMFileLoggerPrivate::Parsable);
+    return !!(d_func()->m_flags & QPFileLoggerPrivate::Parsable);
 }

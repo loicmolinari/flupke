@@ -1,5 +1,5 @@
 %modules = ( # path to module name map
-    "QuickenMetrics" => "$basedir/src/QuickenMetrics",
+    "QuickenPerf" => "$basedir/src/QuickenPerf",
 );
 %moduleheaders = ( # restrict the module headers to those found in relative path
 );
@@ -7,7 +7,7 @@
 %classnames = (
     #add classnames that are not automatically detected
     #e.g. "someheader.h" => "SomeType"
-    "quickenmetricsmodule.h" => "QuickenMetricsModule"
+    "quickenperfmodule.h" => "QuickenPerfModule"
 );
 
 # Module dependencies.

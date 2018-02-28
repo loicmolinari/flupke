@@ -15,16 +15,16 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef EVENTS_H
-#define EVENTS_H
+#ifndef METRICS_H
+#define METRICS_H
 
-#include <QuickenMetrics/quickenmetricsglobal.h>
+#include <QuickenPerf/quickenperfglobal.h>
 
 // FIXME(loicm) Using alignas() in that public header requires users to have a
 //     C++11 compiler. That also makes the use of Q_NULLPTR and Q_OVERRIDE in
 //     other public headers useless.
 
-struct QUICKEN_METRICS_EXPORT QMProcessEvent
+struct QUICKEN_PERF_EXPORT QPProcessMetrics
 {
     // Virtual size of the process in kilobytes.
     quint32 vszMemory;
@@ -43,9 +43,9 @@ struct QUICKEN_METRICS_EXPORT QMProcessEvent
     // memory alignment, don't forget to update when adding new metrics.
     quint8 __reserved[/*12 bytes taken,*/ 100 /*bytes free*/];
 };
-Q_STATIC_ASSERT(sizeof(QMProcessEvent) == 112);
+Q_STATIC_ASSERT(sizeof(QPProcessMetrics) == 112);
 
-struct QUICKEN_METRICS_EXPORT QMWindowEvent
+struct QUICKEN_PERF_EXPORT QPWindowMetrics
 {
     enum State { Hidden = 0, Shown = 1, Resized = 2, StateCount = 3 };
 
@@ -65,9 +65,9 @@ struct QUICKEN_METRICS_EXPORT QMWindowEvent
     // memory alignment, don't forget to update when adding new metrics.
     quint8 __reserved[/*9 bytes taken,*/ 103 /*bytes free*/];
 };
-Q_STATIC_ASSERT(sizeof(QMWindowEvent) == 112);
+Q_STATIC_ASSERT(sizeof(QPWindowMetrics) == 112);
 
-struct QUICKEN_METRICS_EXPORT QMFrameEvent
+struct QUICKEN_PERF_EXPORT QPFrameMetrics
 {
     // The id of the window on which the frame has been rendered.
     quint32 window;
@@ -97,65 +97,65 @@ struct QUICKEN_METRICS_EXPORT QMFrameEvent
     // memory alignment, don't forget to update when adding new metrics.
     quint8 __reserved[/*48 bytes taken,*/ 64 /*bytes free*/];
 };
-Q_STATIC_ASSERT(sizeof(QMFrameEvent) == 112);
+Q_STATIC_ASSERT(sizeof(QPFrameMetrics) == 112);
 
-struct QUICKEN_METRICS_EXPORT QMGenericEvent
+struct QUICKEN_PERF_EXPORT QPGenericMetrics
 {
     static const quint32 maxStringSize = 64;
 
-    // Id retrieved from QMApplicationMonitor::registerGenericEvent().
+    // Id retrieved from QPApplicationMonitor::registerGenericMetrics().
     quint32 id;
 
     // Size of the string (including the null-terminating char).
     quint32 stringSize;
 
-    // Null-terminated string describing the generic event.
+    // Null-terminated string describing the generic metrics.
     char string[maxStringSize];
 
     // The whole struct must take 112 bytes to allow future additions and best
     // memory alignment, don't forget to update when adding new metrics.
     quint8 __reserved[/*72 bytes taken,*/ 40 /*bytes free*/];
 };
-Q_STATIC_ASSERT(sizeof(QMGenericEvent) == 112);
+Q_STATIC_ASSERT(sizeof(QPGenericMetrics) == 112);
 
-struct QUICKEN_METRICS_EXPORT QMEvent
+struct QUICKEN_PERF_EXPORT QPMetrics
 {
     enum Type { Process = 0, Window = 1, Frame = 2, Generic = 3, TypeCount = 4 };
 
-    // Event type.
+    // Metrics type.
     Type type;
 
     // Time stamp in nanoseconds.
     alignas(8) quint64 timeStamp;
 
     union {
-        QMProcessEvent process;
-        QMWindowEvent window;
-        QMFrameEvent frame;
-        QMGenericEvent generic;
+        QPProcessMetrics process;
+        QPWindowMetrics window;
+        QPFrameMetrics frame;
+        QPGenericMetrics generic;
     };
 };
-Q_STATIC_ASSERT(sizeof(QMEvent) == 128);
+Q_STATIC_ASSERT(sizeof(QPMetrics) == 128);
 
-class QMEventUtilsPrivate;
+class QPMetricsUtilsPrivate;
 
-// Utilities to manipulate events.
-class QUICKEN_METRICS_EXPORT QMEventUtils
+// Utilities to manipulate metrics.
+class QUICKEN_PERF_EXPORT QPMetricsUtils
 {
 public:
-    QMEventUtils();
-    ~QMEventUtils();
+    QPMetricsUtils();
+    ~QPMetricsUtils();
 
-    // Fill the given event with updated process metrics.
-    void updateProcessEvent(QMEvent* event);
+    // Fill the given metrics with updated process metrics.
+    void updateProcessMetrics(QPMetrics* metrics);
 
     // Get a time stamp in nanoseconds. The timer is started at the first call,
     // returning 0.
     static quint64 timeStamp();
 
 private:
-    QMEventUtilsPrivate* const d_ptr;
-    Q_DECLARE_PRIVATE(QMEventUtils)
+    QPMetricsUtilsPrivate* const d_ptr;
+    Q_DECLARE_PRIVATE(QPMetricsUtils)
 };
 
-#endif  // EVENTS_H
+#endif  // METRICS_H

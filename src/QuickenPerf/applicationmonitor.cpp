@@ -35,11 +35,11 @@ LoggingThread::LoggingThread()
     , m_queueSize(0)
     , m_flags(0)
 {
-    m_queue = static_cast<QMEvent*>(
-        alignedAlloc(logQueueAlignment, logQueueSize * sizeof(QMEvent)));
+    m_queue = static_cast<QPMetrics*>(
+        alignedAlloc(logQueueAlignment, logQueueSize * sizeof(QPMetrics)));
 
 #if !defined(QT_NO_DEBUG)
-    setObjectName(QStringLiteral("QuickenMetrics logging"));  // Thread name.
+    setObjectName(QStringLiteral("QuickenPerf logging"));  // Thread name.
 #endif
     start();
 }
@@ -68,7 +68,7 @@ void LoggingThread::run()
 {
     DLOG("Entering logging thread.");
     while (true) {
-        // Wait for new events in the log queue.
+        // Wait for new metrics in the log queue.
         m_mutex.lock();
         DASSERT(m_queueSize >= 0);
         if (m_queueSize == 0) {
@@ -81,26 +81,26 @@ void LoggingThread::run()
             m_flags &= ~Waiting;
         }
 
-        // Unqueue oldest events from the log queue.
+        // Unqueue oldest metrics from the log queue.
         DASSERT(m_queueSize > 0);
-        QMEvent event;
-        memcpy(&event, &m_queue[m_queueIndex], sizeof(QMEvent));
+        QPMetrics metrics;
+        memcpy(&metrics, &m_queue[m_queueIndex], sizeof(QPMetrics));
         m_queueIndex = (m_queueIndex + 1) % logQueueSize;
         m_queueSize--;
 
         // Log.
         const int loggerCount = m_loggerCount;
-        QMLogger* loggers[QMApplicationMonitorPrivate::maxLoggers];
-        memcpy(loggers, m_loggers, loggerCount * sizeof(QMLogger*));
+        QPLogger* loggers[QPApplicationMonitorPrivate::maxLoggers];
+        memcpy(loggers, m_loggers, loggerCount * sizeof(QPLogger*));
         m_mutex.unlock();
         for (int i = 0; i < loggerCount; ++i) {
-            loggers[i]->log(event);
+            loggers[i]->log(metrics);
         }
     }
     DLOG("Leaving logging thread.");
 }
 
-void LoggingThread::push(const QMEvent* event)
+void LoggingThread::push(const QPMetrics* metrics)
 {
     // Ensure the log queue is not full.
     m_mutex.lock();
@@ -111,22 +111,22 @@ void LoggingThread::push(const QMEvent* event)
         m_mutex.lock();
     }
 
-    // Push event to the log queue.
+    // Push metrics to the log queue.
     DASSERT(m_queueSize < logQueueSize);
-    memcpy(&m_queue[(m_queueIndex + m_queueSize++) % logQueueSize], event, sizeof(QMEvent));
+    memcpy(&m_queue[(m_queueIndex + m_queueSize++) % logQueueSize], metrics, sizeof(QPMetrics));
     if (m_flags & Waiting) {
         m_condition.wakeOne();
     }
     m_mutex.unlock();
 }
 
-void LoggingThread::setLoggers(QMLogger** loggers, int count)
+void LoggingThread::setLoggers(QPLogger** loggers, int count)
 {
     DASSERT(count >= 0);
-    DASSERT(count <= QMApplicationMonitorPrivate::maxLoggers);
+    DASSERT(count <= QPApplicationMonitorPrivate::maxLoggers);
 
     QMutexLocker locker(&m_mutex);
-    memcpy(m_loggers, loggers, count * sizeof(QMLogger*));
+    memcpy(m_loggers, loggers, count * sizeof(QPLogger*));
     m_loggerCount = count;
 }
 
@@ -147,16 +147,16 @@ void LoggingThread::deref()
     }
 }
 
-QMApplicationMonitor* QMApplicationMonitor::self = nullptr;
+QPApplicationMonitor* QPApplicationMonitor::self = nullptr;
 
-QMApplicationMonitor::QMApplicationMonitor()
-    : d_ptr(new QMApplicationMonitorPrivate(this))
+QPApplicationMonitor::QPApplicationMonitor()
+    : d_ptr(new QPApplicationMonitorPrivate(this))
 {
-    ASSERT_X(!self, "ApplicationMonitor: There should be only one QMApplicationMonitor.");
+    ASSERT_X(!self, "ApplicationMonitor: There should be only one QPApplicationMonitor.");
     self = this;
 }
 
-QMApplicationMonitorPrivate::QMApplicationMonitorPrivate(QMApplicationMonitor* applicationMonitor)
+QPApplicationMonitorPrivate::QPApplicationMonitorPrivate(QPApplicationMonitor* applicationMonitor)
     : q_ptr(applicationMonitor)
 #if !defined(QT_NO_DEBUG)
     , m_monitors{}
@@ -166,9 +166,9 @@ QMApplicationMonitorPrivate::QMApplicationMonitorPrivate(QMApplicationMonitor* a
     , m_monitorCount(0)
     , m_loggerCount(0)
     , m_updateInterval{1000, -1, -1}
-    , m_flags(QMApplicationMonitor::AllEvents)
+    , m_flags(QPApplicationMonitor::AllMetrics)
 {
-    Q_Q(QMApplicationMonitor);
+    Q_Q(QPApplicationMonitor);
 
     QGuiApplication* application = qobject_cast<QGuiApplication*>(QCoreApplication::instance());
     ASSERT_X(application, "ApplicationMonitor: There should be a QGuiApplication instantiated.");
@@ -182,15 +182,15 @@ QMApplicationMonitorPrivate::QMApplicationMonitorPrivate(QMApplicationMonitor* a
     QObject::connect(application, SIGNAL(aboutToQuit()), q, SLOT(closeDown()));
     QObject::connect(&m_processTimer, SIGNAL(timeout()), q, SLOT(processTimeout()));
 
-    m_processTimer.setInterval(m_updateInterval[QMEvent::Process]);
+    m_processTimer.setInterval(m_updateInterval[QPMetrics::Process]);
 }
 
-QMApplicationMonitor::~QMApplicationMonitor()
+QPApplicationMonitor::~QPApplicationMonitor()
 {
     delete d_ptr;
 }
 
-QMApplicationMonitorPrivate::~QMApplicationMonitorPrivate()
+QPApplicationMonitorPrivate::~QPApplicationMonitorPrivate()
 {
     DASSERT(!(m_flags & Started));
 
@@ -200,22 +200,22 @@ QMApplicationMonitorPrivate::~QMApplicationMonitorPrivate()
     // be NULL.
 }
 
-void QMApplicationMonitor::setOverlay(bool overlay)
+void QPApplicationMonitor::setOverlay(bool overlay)
 {
-    Q_D(QMApplicationMonitor);
+    Q_D(QPApplicationMonitor);
 
-    if (!!(d->m_flags & QMApplicationMonitorPrivate::Overlay) != overlay) {
+    if (!!(d->m_flags & QPApplicationMonitorPrivate::Overlay) != overlay) {
         if (overlay) {
-            d->m_flags |= QMApplicationMonitorPrivate::Overlay;
-            if (!(d->m_flags & (QMApplicationMonitorPrivate::Started
-                                | QMApplicationMonitorPrivate::ClosingDown))) {
+            d->m_flags |= QPApplicationMonitorPrivate::Overlay;
+            if (!(d->m_flags & (QPApplicationMonitorPrivate::Started
+                                | QPApplicationMonitorPrivate::ClosingDown))) {
                 d->start();
             } else {
                 d->setMonitoringFlags(d->m_flags);
             }
         } else {
-            d->m_flags &= ~QMApplicationMonitorPrivate::Overlay;
-            if (!(d->m_flags & QMApplicationMonitorPrivate::Logging)) {
+            d->m_flags &= ~QPApplicationMonitorPrivate::Overlay;
+            if (!(d->m_flags & QPApplicationMonitorPrivate::Logging)) {
                 d->stop();
             } else {
                 d->setMonitoringFlags(d->m_flags);
@@ -225,27 +225,27 @@ void QMApplicationMonitor::setOverlay(bool overlay)
     }
 }
 
-bool QMApplicationMonitor::overlay()
+bool QPApplicationMonitor::overlay()
 {
-    return !!(d_func()->m_flags & QMApplicationMonitorPrivate::Overlay);
+    return !!(d_func()->m_flags & QPApplicationMonitorPrivate::Overlay);
 }
 
-void QMApplicationMonitor::setLogging(bool logging)
+void QPApplicationMonitor::setLogging(bool logging)
 {
-    Q_D(QMApplicationMonitor);
+    Q_D(QPApplicationMonitor);
 
-    if (!!(d->m_flags & QMApplicationMonitorPrivate::Logging) != logging) {
+    if (!!(d->m_flags & QPApplicationMonitorPrivate::Logging) != logging) {
         if (logging) {
-            d->m_flags |= QMApplicationMonitorPrivate::Logging;
-            if (!(d->m_flags & (QMApplicationMonitorPrivate::Started
-                                | QMApplicationMonitorPrivate::ClosingDown))) {
+            d->m_flags |= QPApplicationMonitorPrivate::Logging;
+            if (!(d->m_flags & (QPApplicationMonitorPrivate::Started
+                                | QPApplicationMonitorPrivate::ClosingDown))) {
                 d->start();
             } else {
                 d->setMonitoringFlags(d->m_flags);
             }
         } else {
-            d->m_flags &= ~QMApplicationMonitorPrivate::Logging;
-            if (!(d->m_flags & QMApplicationMonitorPrivate::Overlay)) {
+            d->m_flags &= ~QPApplicationMonitorPrivate::Logging;
+            if (!(d->m_flags & QPApplicationMonitorPrivate::Overlay)) {
                 d->stop();
             } else {
                 d->setMonitoringFlags(d->m_flags);
@@ -255,12 +255,12 @@ void QMApplicationMonitor::setLogging(bool logging)
     }
 }
 
-bool QMApplicationMonitor::logging()
+bool QPApplicationMonitor::logging()
 {
-    return !!(d_func()->m_flags & QMApplicationMonitorPrivate::Logging);
+    return !!(d_func()->m_flags & QPApplicationMonitorPrivate::Logging);
 }
 
-void QMApplicationMonitorPrivate::startMonitoring(QQuickWindow* window)
+void QPApplicationMonitorPrivate::startMonitoring(QQuickWindow* window)
 {
     DASSERT(window);
     DASSERT(m_loggingThread);
@@ -270,14 +270,14 @@ void QMApplicationMonitorPrivate::startMonitoring(QQuickWindow* window)
         static quint32 id = 0;
         m_monitors[m_monitorCount] =
             new WindowMonitor(q_func(), window, m_loggingThread->ref(), m_flags, ++id);
-        m_monitors[m_monitorCount]->setProcessEvent(m_processEvent);
+        m_monitors[m_monitorCount]->setProcessMetrics(m_processMetrics);
         m_monitorCount++;
     } else {
         WARN("ApplicationMonitor: Can't monitor more than %d QQuickWindows.", maxMonitors);
     }
 }
 
-void QMApplicationMonitorPrivate::start()
+void QPApplicationMonitorPrivate::start()
 {
     DASSERT(!(m_flags & Started));
     DASSERT(!m_loggingThread);
@@ -302,14 +302,14 @@ void QMApplicationMonitorPrivate::start()
     // Doing it here so that processTimeout can assert the monitoring started.
     m_flags |= Started;
 
-    memset(&m_processEvent, 0, sizeof(QMEvent));
+    memset(&m_processMetrics, 0, sizeof(QPMetrics));
     processTimeout();
-    if (m_updateInterval[QMEvent::Process] >= 0) {
+    if (m_updateInterval[QPMetrics::Process] >= 0) {
         m_processTimer.start();
     }
 }
 
-bool QMApplicationMonitorPrivate::removeMonitor(WindowMonitor* monitor)
+bool QPApplicationMonitorPrivate::removeMonitor(WindowMonitor* monitor)
 {
     DASSERT(monitor);
     DASSERT(monitor->window());
@@ -339,11 +339,11 @@ WindowMonitorDeleter::~WindowMonitorDeleter()
 {
     // FIXME(loicm) Not sure if that assertion could ever fail, so let's debug
     //     assert it and test in release for now.
-    DASSERT(m_applicationMonitor == QMApplicationMonitor::instance());
-    if (m_applicationMonitor == QMApplicationMonitor::instance()) {
+    DASSERT(m_applicationMonitor == QPApplicationMonitor::instance());
+    if (m_applicationMonitor == QPApplicationMonitor::instance()) {
         // Remove the monitor from the list making sure it's not been removed
         // (window going hidden) after this runnable was scheduled.
-        if (QMApplicationMonitorPrivate::get(m_applicationMonitor)->removeMonitor(m_monitor)) {
+        if (QPApplicationMonitorPrivate::get(m_applicationMonitor)->removeMonitor(m_monitor)) {
             delete m_monitor;
         }
     }
@@ -357,7 +357,7 @@ void WindowMonitorDeleter::run()
     }
 }
 
-void QMApplicationMonitorPrivate::stopMonitoring(WindowMonitor* monitor)
+void QPApplicationMonitorPrivate::stopMonitoring(WindowMonitor* monitor)
 {
     DASSERT(monitor);
     DASSERT(monitor->window());
@@ -370,11 +370,11 @@ void QMApplicationMonitorPrivate::stopMonitoring(WindowMonitor* monitor)
         new WindowMonitorDeleter(q_func(), monitor), QQuickWindow::NoStage);
 }
 
-void QMApplicationMonitorPrivate::stop()
+void QPApplicationMonitorPrivate::stop()
 {
     DASSERT(m_flags & Started);
 
-    if (m_updateInterval[QMEvent::Process] >= 0) {
+    if (m_updateInterval[QPMetrics::Process] >= 0) {
         m_processTimer.stop();
     }
 
@@ -409,7 +409,7 @@ void QMApplicationMonitorPrivate::stop()
     m_flags &= ~Started;
 }
 
-bool QMApplicationMonitorPrivate::hasMonitor(WindowMonitor* monitor)
+bool QPApplicationMonitorPrivate::hasMonitor(WindowMonitor* monitor)
 {
     DASSERT(monitor);
     DASSERT(monitor->window());
@@ -429,17 +429,17 @@ WindowMonitorFlagSetter::~WindowMonitorFlagSetter()
 {
     // FIXME(loicm) Not sure if that assertion could ever fail, so let's debug
     //     assert it and do the check in release for now.
-    DASSERT(m_applicationMonitor == QMApplicationMonitor::instance());
-    if (m_applicationMonitor == QMApplicationMonitor::instance()) {
+    DASSERT(m_applicationMonitor == QPApplicationMonitor::instance());
+    if (m_applicationMonitor == QPApplicationMonitor::instance()) {
         // Make sure it's not been removed (window going hidden) after this
         // runnable was scheduled.
-        if (QMApplicationMonitorPrivate::get(m_applicationMonitor)->hasMonitor(m_monitor)) {
+        if (QPApplicationMonitorPrivate::get(m_applicationMonitor)->hasMonitor(m_monitor)) {
             m_monitor->setFlags(m_flags);
         }
     }
 }
 
-void QMApplicationMonitorPrivate::setMonitoringFlags(quint32 flags)
+void QPApplicationMonitorPrivate::setMonitoringFlags(quint32 flags)
 {
     // scheduleRenderJobs() could possibly execute jobs right now we must loop
     // over a copy to avoid deadlocks.
@@ -456,30 +456,30 @@ void QMApplicationMonitorPrivate::setMonitoringFlags(quint32 flags)
     }
 }
 
-void QMApplicationMonitor::setLoggingFilter(QMApplicationMonitor::LoggingFilters filter)
+void QPApplicationMonitor::setLoggingFilter(QPApplicationMonitor::LoggingFilters filter)
 {
-    Q_D(QMApplicationMonitor);
+    Q_D(QPApplicationMonitor);
 
-    const quint32 maskedFilter = filter & QMApplicationMonitorPrivate::FilterMask;
-    if (maskedFilter != (d->m_flags & QMApplicationMonitorPrivate::FilterMask)) {
-        d->m_flags = (d->m_flags & ~QMApplicationMonitorPrivate::FilterMask) | maskedFilter;
-        if (d->m_flags & QMApplicationMonitorPrivate::Started) {
+    const quint32 maskedFilter = filter & QPApplicationMonitorPrivate::FilterMask;
+    if (maskedFilter != (d->m_flags & QPApplicationMonitorPrivate::FilterMask)) {
+        d->m_flags = (d->m_flags & ~QPApplicationMonitorPrivate::FilterMask) | maskedFilter;
+        if (d->m_flags & QPApplicationMonitorPrivate::Started) {
             d->setMonitoringFlags(d->m_flags);
         }
         Q_EMIT loggingFilterChanged();
     }
 }
 
-QMApplicationMonitor::LoggingFilters QMApplicationMonitor::loggingFilter()
+QPApplicationMonitor::LoggingFilters QPApplicationMonitor::loggingFilter()
 {
-    return static_cast<LoggingFilters>(d_func()->m_flags & QMApplicationMonitorPrivate::FilterMask);
+    return static_cast<LoggingFilters>(d_func()->m_flags & QPApplicationMonitorPrivate::FilterMask);
 }
 
-QList<QMLogger*> QMApplicationMonitor::loggers()
+QList<QPLogger*> QPApplicationMonitor::loggers()
 {
-    Q_D(QMApplicationMonitor);
+    Q_D(QPApplicationMonitor);
 
-    QList<QMLogger*> list;
+    QList<QPLogger*> list;
     const int count = d->m_loggerCount;
     for (int i = 0; i < count; ++i) {
         list.append(d->m_loggers[i]);
@@ -487,14 +487,14 @@ QList<QMLogger*> QMApplicationMonitor::loggers()
     return list;
 }
 
-bool QMApplicationMonitor::installLogger(QMLogger* logger)
+bool QPApplicationMonitor::installLogger(QPLogger* logger)
 {
-    Q_D(QMApplicationMonitor);
+    Q_D(QPApplicationMonitor);
 
-    if (d->m_loggerCount < QMApplicationMonitorPrivate::maxLoggers && logger) {
+    if (d->m_loggerCount < QPApplicationMonitorPrivate::maxLoggers && logger) {
         DASSERT(d->m_loggers[d->m_loggerCount] == nullptr);
         d->m_loggers[d->m_loggerCount++] = logger;
-        if (d->m_flags & QMApplicationMonitorPrivate::Started) {
+        if (d->m_flags & QPApplicationMonitorPrivate::Started) {
             DASSERT(d->m_loggingThread);
             d->m_loggingThread->setLoggers(d->m_loggers, d->m_loggerCount);
         }
@@ -505,13 +505,13 @@ bool QMApplicationMonitor::installLogger(QMLogger* logger)
     }
 }
 
-bool QMApplicationMonitor::removeLogger(QMLogger* logger, bool free)
+bool QPApplicationMonitor::removeLogger(QPLogger* logger, bool free)
 {
     if (!logger) {
         return false;
     }
 
-    Q_D(QMApplicationMonitor);
+    Q_D(QPApplicationMonitor);
 
     for (int i = d->m_loggerCount; i > 0; --i) {
         if (d->m_loggers[i] == logger) {
@@ -521,7 +521,7 @@ bool QMApplicationMonitor::removeLogger(QMLogger* logger, bool free)
 #if !defined(QT_NO_DEBUG)
             d->m_loggers[d->m_loggerCount] = nullptr;
 #endif
-            if (d->m_flags & QMApplicationMonitorPrivate::Started) {
+            if (d->m_flags & QPApplicationMonitorPrivate::Started) {
                 DASSERT(d->m_loggingThread);
                 d->m_loggingThread->setLoggers(d->m_loggers, d->m_loggerCount);
             }
@@ -535,9 +535,9 @@ bool QMApplicationMonitor::removeLogger(QMLogger* logger, bool free)
     return false;
 }
 
-void QMApplicationMonitor::clearLoggers(bool free)
+void QPApplicationMonitor::clearLoggers(bool free)
 {
-    Q_D(QMApplicationMonitor);
+    Q_D(QPApplicationMonitor);
 
     if (d->m_loggerCount > 0) {
         if (free) {
@@ -551,113 +551,114 @@ void QMApplicationMonitor::clearLoggers(bool free)
     }
 }
 
-quint32 QMApplicationMonitor::registerGenericEvent()
+quint32 QPApplicationMonitor::registerGenericMetrics()
 {
-    static quint32 id = 0;  // 0 is reserved for QMApplicationMonitor events.
+    static quint32 id = 0;  // 0 is reserved for QPApplicationMonitor metrics.
     return ++id;
 }
 
-bool QMApplicationMonitor::logGenericEvent(quint32 id, const char* string, quint32 size)
+bool QPApplicationMonitor::logGenericMetrics(quint32 id, const char* string, quint32 size)
 {
-    Q_D(QMApplicationMonitor);
+    Q_D(QPApplicationMonitor);
 
-    if ((d->m_flags & QMApplicationMonitorPrivate::Logging) && (d->m_flags & GenericEvent)) {
+    if ((d->m_flags & QPApplicationMonitorPrivate::Logging) && (d->m_flags & GenericMetrics)) {
         DASSERT(d->m_loggingThread);
-        QMEvent event;
-        event.type = QMEvent::Generic;
-        event.timeStamp = QMEventUtils::timeStamp();
-        event.generic.id = id;
+        QPMetrics metrics;
+        metrics.type = QPMetrics::Generic;
+        metrics.timeStamp = QPMetricsUtils::timeStamp();
+        metrics.generic.id = id;
         // We don't bother fixing up non null-terminated string, just potential
         // overflows.
-        event.generic.stringSize = qMin(size, static_cast<quint32>(QMGenericEvent::maxStringSize));
-        memcpy(event.generic.string, string, event.generic.stringSize);
-        d->m_loggingThread->push(&event);
+        metrics.generic.stringSize =
+            qMin(size, static_cast<quint32>(QPGenericMetrics::maxStringSize));
+        memcpy(metrics.generic.string, string, metrics.generic.stringSize);
+        d->m_loggingThread->push(&metrics);
         return true;
     } else {
         return false;
     }
 }
 
-void QMApplicationMonitor::setUpdateInterval(QMEvent::Type type, int interval)
+void QPApplicationMonitor::setUpdateInterval(QPMetrics::Type type, int interval)
 {
-    Q_D(QMApplicationMonitor);
+    Q_D(QPApplicationMonitor);
 
-    if (type == QMEvent::Process) {
-        // Other types (like QMEvent::Frame) are ignored for now.
-        if (interval != d->m_updateInterval[QMEvent::Process]) {
+    if (type == QPMetrics::Process) {
+        // Other types (like QPMetrics::Frame) are ignored for now.
+        if (interval != d->m_updateInterval[QPMetrics::Process]) {
             if (interval >= 0) {
                 d->m_processTimer.setInterval(interval);
-                if ((d->m_flags & QMApplicationMonitorPrivate::Started)
-                    && (d->m_updateInterval[QMEvent::Process] < 0)) {
+                if ((d->m_flags & QPApplicationMonitorPrivate::Started)
+                    && (d->m_updateInterval[QPMetrics::Process] < 0)) {
                     d->m_processTimer.start();
                 }
-            } else if ((d->m_flags & QMApplicationMonitorPrivate::Started)
-                       && (d->m_updateInterval[QMEvent::Process] >= 0)) {
+            } else if ((d->m_flags & QPApplicationMonitorPrivate::Started)
+                       && (d->m_updateInterval[QPMetrics::Process] >= 0)) {
                 d->m_processTimer.stop();
             }
-            d->m_updateInterval[QMEvent::Process] = interval;
-            Q_EMIT updateIntervalChanged(QMEvent::Process);
+            d->m_updateInterval[QPMetrics::Process] = interval;
+            Q_EMIT updateIntervalChanged(QPMetrics::Process);
         }
     }
 }
 
-int QMApplicationMonitor::updateInterval(QMEvent::Type type)
+int QPApplicationMonitor::updateInterval(QPMetrics::Type type)
 {
     return d_func()->m_updateInterval[type];
 }
 
-void QMApplicationMonitor::closeDown()
+void QPApplicationMonitor::closeDown()
 {
-    Q_D(QMApplicationMonitor);
+    Q_D(QPApplicationMonitor);
 
-    d->m_flags |= QMApplicationMonitorPrivate::ClosingDown;
-    if (d->m_flags & QMApplicationMonitorPrivate::Started) {
+    d->m_flags |= QPApplicationMonitorPrivate::ClosingDown;
+    if (d->m_flags & QPApplicationMonitorPrivate::Started) {
         d->stop();
     }
 }
 
-void QMApplicationMonitor::processTimeout()
+void QPApplicationMonitor::processTimeout()
 {
     d_func()->processTimeout();
 }
 
-void QMApplicationMonitorPrivate::processTimeout()
+void QPApplicationMonitorPrivate::processTimeout()
 {
     DASSERT(m_flags & Started);
     DASSERT(m_loggingThread);
 
     const bool processLogging =
-        (m_flags & Logging) && (m_flags & QMApplicationMonitor::ProcessEvent);
+        (m_flags & Logging) && (m_flags & QPApplicationMonitor::ProcessMetrics);
     const bool overlay = m_flags & Overlay;
 
     if (processLogging || overlay) {
-        m_eventUtils.updateProcessEvent(&m_processEvent);
+        m_metricsUtils.updateProcessMetrics(&m_processMetrics);
         if (processLogging) {
-            m_loggingThread->push(&m_processEvent);
+            m_loggingThread->push(&m_processMetrics);
         }
         if (overlay) {
             // FIXME(loicm) We've got two choices here, locking all the monitors
-            //     and pushing the new process event or using scheduleRenderJob.
-            //     We're using direct pushing for now but it would be nice to
-            //     measure the cost of both methods at high update freqs. The
-            //     former one implying locks and the second one dynamic memory
-            //     allocations (placement new to the rescue?) and copies, and
-            //     also I guess locks at the QtQuick level.
+            //     and pushing the new process metrics or using
+            //     scheduleRenderJob. We're using direct pushing for now but it
+            //     would be nice to measure the cost of both methods at high
+            //     update freqs. The former one implying locks and the second
+            //     one dynamic memory allocations (placement new to the rescue?)
+            //     and copies, and also I guess locks at the QtQuick level.
             m_monitorsMutex.lock();
             for (int i = 0; i < m_monitorCount; ++i) {
                 DASSERT(m_monitors[i]);
-                m_monitors[i]->setProcessEvent(m_processEvent);
+                m_monitors[i]->setProcessMetrics(m_processMetrics);
             }
             m_monitorsMutex.unlock();
         }
     }
 }
 
-bool QMApplicationMonitor::eventFilter(QObject* object, QEvent* event)
+bool QPApplicationMonitor::eventFilter(QObject* object, QEvent* event)
 {
     if (event->type() == QEvent::Show) {
         if (QQuickWindow* window = qobject_cast<QQuickWindow*>(object)) {
-            Q_D(QMApplicationMonitor);
+            Q_D(QPApplicationMonitor);
             d->m_monitorsMutex.lock();
             d->startMonitoring(window);
             d->m_monitorsMutex.unlock();
@@ -685,7 +686,7 @@ static const char* const defaultOverlayText =
     " CPU usage : %9cpuUsage %% ";
 
 WindowMonitor::WindowMonitor(
-    QMApplicationMonitor* applicationMonitor, QQuickWindow* window, LoggingThread* loggingThread,
+    QPApplicationMonitor* applicationMonitor, QQuickWindow* window, LoggingThread* loggingThread,
     quint32 flags, quint32 id)
     : m_applicationMonitor(applicationMonitor)
     , m_loggingThread(loggingThread)
@@ -695,7 +696,7 @@ WindowMonitor::WindowMonitor(
     , m_flags(flags)
     , m_frameSize(window->width(), window->height())
 {
-    DASSERT(applicationMonitor == QMApplicationMonitor::instance());
+    DASSERT(applicationMonitor == QPApplicationMonitor::instance());
     DASSERT(m_applicationMonitor);
     DASSERT(window);
     DASSERT(loggingThread);
@@ -719,20 +720,20 @@ WindowMonitor::WindowMonitor(
     QObject::connect(window, SIGNAL(sceneGraphAboutToStop()), this,
                      SLOT(windowSceneGraphAboutToStop()), Qt::DirectConnection);
 
-    memset(&m_frameEvent, 0, sizeof(m_frameEvent));
-    m_frameEvent.type = QMEvent::Frame;
-    m_frameEvent.frame.window = id;
+    memset(&m_frameMetrics, 0, sizeof(m_frameMetrics));
+    m_frameMetrics.type = QPMetrics::Frame;
+    m_frameMetrics.frame.window = id;
 
-    if ((flags & QMApplicationMonitorPrivate::Logging)
-        && (flags & QMApplicationMonitor::WindowEvent)) {
-        QMEvent event;
-        event.type = QMEvent::Window;
-        event.timeStamp = QMEventUtils::timeStamp();
-        event.window.id = id;
-        event.window.width = m_frameSize.width();
-        event.window.height = m_frameSize.height();
-        event.window.state = QMWindowEvent::Shown;
-        loggingThread->push(&event);
+    if ((flags & QPApplicationMonitorPrivate::Logging)
+        && (flags & QPApplicationMonitor::WindowMetrics)) {
+        QPMetrics metrics;
+        metrics.type = QPMetrics::Window;
+        metrics.timeStamp = QPMetricsUtils::timeStamp();
+        metrics.window.id = id;
+        metrics.window.width = m_frameSize.width();
+        metrics.window.height = m_frameSize.height();
+        metrics.window.state = QPWindowMetrics::Shown;
+        loggingThread->push(&metrics);
     }
 }
 
@@ -740,16 +741,16 @@ WindowMonitor::~WindowMonitor()
 {
     DASSERT(!(m_flags & GpuResourcesInitialized));
 
-    if ((m_flags & QMApplicationMonitorPrivate::Logging)
-        && (m_flags & QMApplicationMonitor::WindowEvent)) {
-        QMEvent event;
-        event.type = QMEvent::Window;
-        event.timeStamp = QMEventUtils::timeStamp();
-        event.window.id = m_id;
-        event.window.width = m_frameSize.width();
-        event.window.height = m_frameSize.height();
-        event.window.state = QMWindowEvent::Hidden;
-        m_loggingThread->push(&event);
+    if ((m_flags & QPApplicationMonitorPrivate::Logging)
+        && (m_flags & QPApplicationMonitor::WindowMetrics)) {
+        QPMetrics metrics;
+        metrics.type = QPMetrics::Window;
+        metrics.timeStamp = QPMetricsUtils::timeStamp();
+        metrics.window.id = m_id;
+        metrics.window.width = m_frameSize.width();
+        metrics.window.height = m_frameSize.height();
+        metrics.window.state = QPWindowMetrics::Hidden;
+        m_loggingThread->push(&metrics);
     }
 
     m_loggingThread->deref();
@@ -761,11 +762,11 @@ void WindowMonitor::initializeGpuResources()
 
     // FIXME(loicm) We should actually provide an API call to let the user set
     //     that behavior programmatically.
-    static bool noGpuTimer = qEnvironmentVariableIsSet("QM_NO_GPU_TIMER");
+    static bool noGpuTimer = qEnvironmentVariableIsSet("QP_NO_GPU_TIMER");
 
     m_overlay.initialize();
     m_gpuTimer.initialize();
-    m_frameEvent.frame.number = 0;
+    m_frameMetrics.frame.number = 0;
     m_flags |= GpuResourcesInitialized | (!noGpuTimer ? GpuTimerAvailable : 0);
 }
 
@@ -785,7 +786,7 @@ void WindowMonitor::finalizeGpuResources()
     }
     m_overlay.finalize();
 
-    m_frameEvent.frame.number = 0;
+    m_frameMetrics.frame.number = 0;
     m_flags &= ~(GpuResourcesInitialized | GpuTimerAvailable);
 }
 
@@ -806,7 +807,7 @@ void WindowMonitor::windowBeforeSynchronizing()
 void WindowMonitor::windowAfterSynchronizing()
 {
     if (m_flags & GpuResourcesInitialized) {
-        m_frameEvent.frame.syncTime = m_sceneGraphTimer.nsecsElapsed();
+        m_frameMetrics.frame.syncTime = m_sceneGraphTimer.nsecsElapsed();
     }
 }
 
@@ -815,16 +816,16 @@ void WindowMonitor::windowBeforeRendering()
     const QSize frameSize = m_window->size();
     if (frameSize != m_frameSize) {
         m_frameSize = frameSize;
-        if ((m_flags & QMApplicationMonitorPrivate::Logging) &&
-            (m_flags & QMApplicationMonitor::WindowEvent)) {
-            QMEvent event;
-            event.type = QMEvent::Window;
-            event.timeStamp = QMEventUtils::timeStamp();
-            event.window.id = m_id;
-            event.window.width = frameSize.width();
-            event.window.height = frameSize.height();
-            event.window.state = QMWindowEvent::Resized;
-            m_loggingThread->push(&event);
+        if ((m_flags & QPApplicationMonitorPrivate::Logging) &&
+            (m_flags & QPApplicationMonitor::WindowMetrics)) {
+            QPMetrics metrics;
+            metrics.type = QPMetrics::Window;
+            metrics.timeStamp = QPMetricsUtils::timeStamp();
+            metrics.window.id = m_id;
+            metrics.window.width = frameSize.width();
+            metrics.window.height = frameSize.height();
+            metrics.window.state = QPWindowMetrics::Resized;
+            m_loggingThread->push(&metrics);
         }
     }
 
@@ -839,12 +840,12 @@ void WindowMonitor::windowBeforeRendering()
 void WindowMonitor::windowAfterRendering()
 {
     if (m_flags & GpuResourcesInitialized) {
-        m_frameEvent.frame.renderTime = m_sceneGraphTimer.nsecsElapsed();
-        m_frameEvent.frame.gpuTime = (m_flags & GpuTimerAvailable) ? m_gpuTimer.stop() : 0;
-        m_frameEvent.frame.number++;
-        if (m_flags & QMApplicationMonitorPrivate::Overlay) {
+        m_frameMetrics.frame.renderTime = m_sceneGraphTimer.nsecsElapsed();
+        m_frameMetrics.frame.gpuTime = (m_flags & GpuTimerAvailable) ? m_gpuTimer.stop() : 0;
+        m_frameMetrics.frame.number++;
+        if (m_flags & QPApplicationMonitorPrivate::Overlay) {
             m_mutex.lock();
-            m_overlay.render(m_frameEvent, m_frameSize);
+            m_overlay.render(m_frameMetrics, m_frameSize);
             m_mutex.unlock();
         }
         m_sceneGraphTimer.start();
@@ -854,17 +855,17 @@ void WindowMonitor::windowAfterRendering()
 void WindowMonitor::windowFrameSwapped()
 {
     if (m_flags & GpuResourcesInitialized) {
-        m_frameEvent.frame.deltaTime = m_deltaTimer.isValid() ? m_deltaTimer.nsecsElapsed() : 0;
+        m_frameMetrics.frame.deltaTime = m_deltaTimer.isValid() ? m_deltaTimer.nsecsElapsed() : 0;
         m_deltaTimer.start();
-        if ((m_flags & QMApplicationMonitorPrivate::Logging) &&
-            (m_flags & QMApplicationMonitor::FrameEvent)) {
-            m_frameEvent.frame.swapTime = m_sceneGraphTimer.nsecsElapsed();
-            m_frameEvent.timeStamp = QMEventUtils::timeStamp();
-            m_loggingThread->push(&m_frameEvent);
+        if ((m_flags & QPApplicationMonitorPrivate::Logging) &&
+            (m_flags & QPApplicationMonitor::FrameMetrics)) {
+            m_frameMetrics.frame.swapTime = m_sceneGraphTimer.nsecsElapsed();
+            m_frameMetrics.timeStamp = QPMetricsUtils::timeStamp();
+            m_loggingThread->push(&m_frameMetrics);
         }
     } else {
         initializeGpuResources();  // Get everything ready for the next frame.
-        if (m_flags & QMApplicationMonitorPrivate::Overlay) {
+        if (m_flags & QPApplicationMonitorPrivate::Overlay) {
             m_window->update();
         }
     }
@@ -873,10 +874,10 @@ void WindowMonitor::windowFrameSwapped()
 void WindowMonitor::windowSceneGraphAboutToStop()
 {
 #if !defined(QT_NO_DEBUG)
-    ASSERT(m_applicationMonitor == QMApplicationMonitor::instance());
-    ASSERT(QMApplicationMonitorPrivate::get(m_applicationMonitor)->removeMonitor(this) == true);
+    ASSERT(m_applicationMonitor == QPApplicationMonitor::instance());
+    ASSERT(QPApplicationMonitorPrivate::get(m_applicationMonitor)->removeMonitor(this) == true);
 #else
-    QMApplicationMonitorPrivate::get(m_applicationMonitor)->removeMonitor(this);
+    QPApplicationMonitorPrivate::get(m_applicationMonitor)->removeMonitor(this);
 #endif
 
     if (m_flags & GpuResourcesInitialized) {
@@ -885,13 +886,13 @@ void WindowMonitor::windowSceneGraphAboutToStop()
     delete this;
 }
 
-void WindowMonitor::setProcessEvent(const QMEvent& event)
+void WindowMonitor::setProcessMetrics(const QPMetrics& metrics)
 {
-    DASSERT(event.type == QMEvent::Process);
+    DASSERT(metrics.type == QPMetrics::Process);
 
-    if (m_flags & QMApplicationMonitorPrivate::Overlay) {
+    if (m_flags & QPApplicationMonitorPrivate::Overlay) {
         m_mutex.lock();
-        m_overlay.setProcessEvent(event);
+        m_overlay.setProcessMetrics(metrics);
         m_mutex.unlock();
         m_window->update();
     }

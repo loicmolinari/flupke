@@ -46,7 +46,7 @@
 #include <QtCore/QTranslator>
 #include <QtCore/QLibraryInfo>
 
-#include <QuickenMetrics/applicationmonitor.h>
+#include <QuickenPerf/applicationmonitor.h>
 
 #ifdef QML_RUNTIME_TESTING
 class RenderStatistics
@@ -523,32 +523,32 @@ static QQuickWindow::TextRenderType parseTextRenderType(const QString &renderTyp
     return QQuickWindow::QtTextRendering;
 }
 
-static void setQuickenMetricsOptions(Options* options) {
-    QMApplicationMonitor* applicationMonitor = QMApplicationMonitor::instance();
+static void setQuickenPerfOptions(Options* options) {
+    QPApplicationMonitor* applicationMonitor = QPApplicationMonitor::instance();
     if (!options->metricsLoggingFilter.isEmpty()) {
         QStringList filterList =
             options->metricsLoggingFilter.split(QChar(','), QString::SkipEmptyParts);
-        QMApplicationMonitor::LoggingFilters filter = 0;
+        QPApplicationMonitor::LoggingFilters filter = 0;
         const int size = filterList.size();
         for (int i = 0; i < size; ++i) {
             if (filterList[i] == QLatin1String("window")) {
-                filter |= QMApplicationMonitor::WindowEvent;
+                filter |= QPApplicationMonitor::WindowMetrics;
             } else if (filterList[i] == QLatin1String("process")) {
-                filter |= QMApplicationMonitor::ProcessEvent;
+                filter |= QPApplicationMonitor::ProcessMetrics;
             } else if (filterList[i] == QLatin1String("frame")) {
-                filter |= QMApplicationMonitor::FrameEvent;
+                filter |= QPApplicationMonitor::FrameMetrics;
             } else if (filterList[i] == QLatin1String("generic")) {
-                filter |= QMApplicationMonitor::GenericEvent;
+                filter |= QPApplicationMonitor::GenericMetrics;
             }
         }
         applicationMonitor->setLoggingFilter(filter);
     }
     if (!options->metricsLogging.isEmpty()) {
-        QMLogger* logger;
+        QPLogger* logger;
         if (options->metricsLogging == QLatin1String("stdout")) {
-            logger = new QMFileLogger(stdout);
+            logger = new QPFileLogger(stdout);
         } else {
-            logger = new QMFileLogger(options->metricsLogging);
+            logger = new QPFileLogger(options->metricsLogging);
         }
         if (logger->isOpen()) {
             applicationMonitor->installLogger(logger);
@@ -650,7 +650,7 @@ int main(int argc, char ** argv)
                     && !arguments.at(i+1).endsWith(QString(".qml"))) {
                     options.metricsLoggingFilter = QString(argv[++i]);
                 } else {
-                    // Filter everything (as empty is not a valid event type).
+                    // Filter everything (as empty is not a valid metrics type).
                     options.metricsLoggingFilter = QString("empty");
                 }
             } else if (lowerArgument == QLatin1String("--continuous-updates"))
@@ -802,7 +802,7 @@ int main(int argc, char ** argv)
             if (options.quitImmediately)
                 QMetaObject::invokeMethod(QCoreApplication::instance(), "quit", Qt::QueuedConnection);
 
-            setQuickenMetricsOptions(&options);
+            setQuickenPerfOptions(&options);
 
             // Now would be a good time to inform the debug service to start listening.
 

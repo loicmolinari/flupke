@@ -1,4 +1,4 @@
-TARGET = QuickenMetrics
+TARGET = QuickenPerf
 QT = core-private gui-private quick-private
 
 contains(QT_CONFIG, opengles2) {
@@ -11,10 +11,10 @@ HEADERS += \
     $$PWD/applicationmonitor_p.h \
     $$PWD/bitmaptext_p.h \
     $$PWD/bitmaptextfont_p.h \
-    $$PWD/events.h \
-    $$PWD/events_p.h \
-    $$PWD/quickenmetricsglobal.h \
-    $$PWD/quickenmetricsglobal_p.h \
+    $$PWD/metrics.h \
+    $$PWD/metrics_p.h \
+    $$PWD/quickenperfglobal.h \
+    $$PWD/quickenperfglobal_p.h \
     $$PWD/gputimer_p.h \
     $$PWD/logger.h \
     $$PWD/logger_p.h \
@@ -23,8 +23,8 @@ HEADERS += \
 SOURCES += \
     $$PWD/applicationmonitor.cpp \
     $$PWD/bitmaptext.cpp \
-    $$PWD/events.cpp \
-    $$PWD/quickenmetricsglobal.cpp \
+    $$PWD/metrics.cpp \
+    $$PWD/quickenperfglobal.cpp \
     $$PWD/gputimer.cpp \
     $$PWD/logger.cpp \
     $$PWD/overlay.cpp
