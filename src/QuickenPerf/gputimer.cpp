@@ -19,7 +19,7 @@
 
 #include <QtCore/QElapsedTimer>
 
-#include "quickenmetricsglobal_p.h"
+#include "quickenperfglobal_p.h"
 
 #if !defined(QT_OPENGL_ES) && !defined(GL_TIME_ELAPSED)
 #define GL_TIME_ELAPSED 0x88BF  // For GL_EXT_timer_query.

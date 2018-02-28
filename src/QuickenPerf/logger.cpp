@@ -21,7 +21,7 @@
 #include <QtCore/QTime>
 
 #include "metrics.h"
-#include "quickenmetricsglobal_p.h"
+#include "quickenperfglobal_p.h"
 
 QPFileLogger::QPFileLogger(const QString& fileName, bool parsable)
     : d_ptr(new QPFileLoggerPrivate(fileName, parsable))

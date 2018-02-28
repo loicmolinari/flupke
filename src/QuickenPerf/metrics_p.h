@@ -24,7 +24,7 @@
 
 #include <QtCore/QElapsedTimer>
 
-#include <QuickenPerf/private/quickenmetricsglobal_p.h>
+#include <QuickenPerf/private/quickenperfglobal_p.h>
 
 class QUICKEN_PERF_PRIVATE_EXPORT QPMetricsUtilsPrivate
 {
