@@ -4,7 +4,7 @@ Started as a dump of the interesting features developed for Ubuntu Touch, **Quic
 
 ## QuickenMetrics library
 
-QuickenMetrics is a library to track and show real-time performance metrics of Qt Quick applications. The metrics can be displayed per windows, each QQuickWindow having different values, or logged to a file.
+QuickenMetrics is a library to monitor and show real-time performance metrics of Qt Quick applications. The metrics can be overlaid on the Qt Quick windows and/or logged to a file.
 
 For now, there are 3 types of metrics:
 
@@ -12,11 +12,11 @@ For now, there are 3 types of metrics:
 - Frame metrics, with a window id, a frame number and various values like sync, render and swap times.
 - Process metrics, with the virtually allocated memory size, the Resident Set Size, CPU usage and the thread count.
 
-Here is a shot showing the metrics overlay on a QQuickWindow:
+Here is a shot showing the metrics rendered on a QQuickWindow. The frame timings corresponds to the frame that is overlaid.
 
 ![metrics logging image](https://raw.githubusercontent.com/wiki/loicmolinari/quicken/web/quicken-win.png)
 
-And another one showing logging to the standard output:
+And another one showing logging to the standard output.
 
 ![metrics overlay image](https://raw.githubusercontent.com/wiki/loicmolinari/quicken/web/quicken-term.png)
 
@@ -38,7 +38,7 @@ $ qmlscene-quicken --help
   --quit-after-frame-count <count> .. Quit after <count> frames rendered on the main window.
 ```
 
-Note how `--continuous-updates` and `--quit-after-frame-count` can be used in conjonction with performance metrics logging in order to measure average timings across several frames and get precise rendering times for instance. Such values can be useful in regression tests for instance.
+Note how `--continuous-updates` and `--quit-after-frame-count` can be used in conjonction with performance metrics logging in order to measure average timings across several frames and get precise rendering times. Such values can be useful in regression tests for instance.
 
 ## Supported platforms
 
