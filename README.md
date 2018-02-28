@@ -1,6 +1,6 @@
 # Quicken
 
-Started as a dump of the interesting features developed for Ubuntu Touch, **Quicken** delivers additional libraries, plugins and tools for Qt Quick. Here's a quick summary of these.
+Started as a dump of the interesting features developed for Ubuntu Touch, Quicken delivers additional libraries, plugins and tools for Qt Quick. Here's a quick summary of these.
 
 ## QuickenMetrics library
 
@@ -12,7 +12,7 @@ For now, there are 3 types of metrics:
 - Frame metrics, with a window id, a frame number and various values like sync, render and swap times.
 - Process metrics, with the virtually allocated memory size, the Resident Set Size, CPU usage and the thread count.
 
-Here's a shot showing the metrics rendered on a QQuickWindow. The frame timings corresponds to the frame that is overlaid.
+Here's a shot showing the metrics rendered on a QQuickWindow. The frame timings corresponds to the time taken to render the exact frame that is overlaid.
 
 ![metrics logging image](https://raw.githubusercontent.com/wiki/loicmolinari/quicken/web/quicken-win.png)
 
