@@ -383,14 +383,14 @@ static void usage()
     puts("  -translation <translationfile> ... Set the language to run in");
     puts(" ");
     puts(" Quicken options:");
-    puts("  --metrics-overlay ................ Enable the metrics overlay");
-    puts("  --metrics-logging <device> ....... Enable metrics logging. <device> can be 'stdout' or a");
-    puts("                             ....... file (default is 'stdout')");
-    puts("  --metrics-logging-filter <filter>  Filter metrics logging. <filter> is a list of events");
-    puts("                                     separated by a comma ('window', 'process', 'frame' or '*')");
-    puts("  --continuous-updates ............. Continuously update the window");
-    puts("  --quit-after-frame-count <count>.. Quit after a number of rendered frames on the window");
-    
+    puts("  --metrics-overlay ................. Enable the metrics overlay on each QQuickWindows.");
+    puts("  --metrics-logging <device> ........ Enable metrics logging. <device> is a file or 'stdout' (an empty");
+    puts("    ................................. <device> means 'stdout').");
+    puts("  --metrics-logging-filter <filter> . Filter logged metrics. <filter> is a list of metrics types (either");
+    puts("    ................................. 'window', 'frame', 'process' or 'generic') separated by commas");
+    puts("    ................................. (for example: 'window' or 'window,process').");
+    puts("  --continuous-updates .............. Continuously update the main window.");
+    puts("  --quit-after-frame-count <count> .. Quit after <count> frames rendered on the main window.");
     puts(" ");
     exit(1);
 }
@@ -531,10 +531,7 @@ static void setQuickenMetricsOptions(Options* options) {
         QMApplicationMonitor::LoggingFilters filter = 0;
         const int size = filterList.size();
         for (int i = 0; i < size; ++i) {
-            if (filterList[i] == QLatin1String("*")) {
-                filter |= QMApplicationMonitor::AllEvents;
-                break;
-            } else if (filterList[i] == QLatin1String("window")) {
+            if (filterList[i] == QLatin1String("window")) {
                 filter |= QMApplicationMonitor::WindowEvent;
             } else if (filterList[i] == QLatin1String("process")) {
                 filter |= QMApplicationMonitor::ProcessEvent;
@@ -649,8 +646,12 @@ int main(int argc, char ** argv)
                     options.metricsLogging = QLatin1String("stdout");
                 }
             } else if (lowerArgument == QLatin1String("--metrics-logging-filter")) {
-                if (!arguments.at(i+1).startsWith(QLatin1Char('-'))) {
+                if (!arguments.at(i+1).startsWith(QLatin1Char('-'))
+                    && !arguments.at(i+1).endsWith(QString(".qml"))) {
                     options.metricsLoggingFilter = QString(argv[++i]);
+                } else {
+                    // Filter everything (as empty is not a valid event type).
+                    options.metricsLoggingFilter = QString("empty");
                 }
             } else if (lowerArgument == QLatin1String("--continuous-updates"))
                 options.continuousUpdates = true;
