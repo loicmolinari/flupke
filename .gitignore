@@ -9,5 +9,5 @@ bin/
 include/
 lib/
 mkspecs/
-src/perf/QuickenPerf.version
-src/perf/QuickenPerf.version.in
+src/quicken/Quicken.version
+src/quicken/Quicken.version.in

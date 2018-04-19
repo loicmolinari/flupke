@@ -20,41 +20,41 @@
 
 #include <QtCore/QFile>
 
-#include <QuickenPerf/quickenperfglobal.h>
+#include <Quicken/quickenglobal.h>
 
-class QPFileLoggerPrivate;
-struct QPMetrics;
+class QcknFileLoggerPrivate;
+struct QcknMetrics;
 
 // Log metrics to a specific device.
-class QUICKEN_PERF_EXPORT QPLogger
+class QUICKEN_EXPORT QcknLogger
 {
 public:
-    virtual ~QPLogger() {}
+    virtual ~QcknLogger() {}
 
     // Log metrics.
-    virtual void log(const QPMetrics& metrics) = 0;
+    virtual void log(const QcknMetrics& metrics) = 0;
 
     // Get whether the target device has been opened successfully or not.
     virtual bool isOpen() = 0;
 };
 
 // Log metrics to a file.
-class QUICKEN_PERF_EXPORT QPFileLogger : public QPLogger
+class QUICKEN_EXPORT QcknFileLogger : public QcknLogger
 {
 public:
-    QPFileLogger(const QString& filename, bool parsable = true);
-    QPFileLogger(FILE* fileHandle, bool parsable = false);
-    ~QPFileLogger();
+    QcknFileLogger(const QString& filename, bool parsable = true);
+    QcknFileLogger(FILE* fileHandle, bool parsable = false);
+    ~QcknFileLogger();
 
-    void log(const QPMetrics& metrics) Q_DECL_OVERRIDE;
+    void log(const QcknMetrics& metrics) Q_DECL_OVERRIDE;
     bool isOpen() Q_DECL_OVERRIDE;
 
     void setParsable(bool parsable);
     bool parsable();
 
 private:
-    QPFileLoggerPrivate* const d_ptr;
-    Q_DECLARE_PRIVATE(QPFileLogger)
+    QcknFileLoggerPrivate* const d_ptr;
+    Q_DECLARE_PRIVATE(QcknFileLogger)
 };
 
 #endif  // LOGGER_H

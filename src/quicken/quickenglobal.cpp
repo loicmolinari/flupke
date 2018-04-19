@@ -15,32 +15,20 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef METRICS_P_H
-#define METRICS_P_H
+#include "quickenglobal_p.h"
 
-#include <QuickenPerf/metrics.h>
-
-#include <sys/times.h>
-
-#include <QtCore/QElapsedTimer>
-
-#include <QuickenPerf/private/quickenperfglobal_p.h>
-
-class QUICKEN_PERF_PRIVATE_EXPORT QPMetricsUtilsPrivate
+void* alignedAlloc(size_t alignment, size_t size)
 {
-public:
-    QPMetricsUtilsPrivate();
-    ~QPMetricsUtilsPrivate();
+    DASSERT(IS_POWER_OF_TWO(alignment));
+    // DASSERT(((size % alignment) == 0));  // FIXME(loicm) ASSERT doesn't support '%'...
 
-    void updateCpuUsage(QPMetrics* metrics);
-    void updateProcStatMetrics(QPMetrics* metrics);
-
-    char* m_buffer;
-    QElapsedTimer m_cpuTimer;
-    struct tms m_cpuTimes;
-    clock_t m_cpuTicks;
-    quint16 m_cpuOnlineCores;
-    quint16 m_pageSize;
-};
-
-#endif  // METRICS_P_H
+#if defined(__APPLE__)
+    void* pointer;
+    posix_memalign(&pointer, alignment, size);
+    return pointer;
+#elif defined(_WIN32)
+    return _aligned_malloc(size, alignment);
+#else
+    return aligned_alloc(alignment, size);
+#endif
+}

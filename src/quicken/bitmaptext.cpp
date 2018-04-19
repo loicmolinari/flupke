@@ -23,7 +23,7 @@
 
 #include "bitmaptext_p.h"
 #include "bitmaptextfont_p.h"
-#include "quickenperfglobal_p.h"
+#include "quickenglobal_p.h"
 
 static const GLchar* bitmapTextVertexShaderSource =
 #if !defined(QT_OPENGL_ES_2)
@@ -59,7 +59,7 @@ const int bitmapTextDefaultFontSize = 16;
 const float bitmapTextDefaultOpacity = 1.0f;
 const float bitmapTextCarriageReturnHeight = 1.5f;
 
-QPBitmapText::QPBitmapText()
+QcknBitmapText::QcknBitmapText()
     : m_functions(nullptr)
 #if !defined QT_NO_DEBUG
     , m_context(nullptr)
@@ -82,7 +82,7 @@ QPBitmapText::QPBitmapText()
     }
 }
 
-QPBitmapText::~QPBitmapText()
+QcknBitmapText::~QcknBitmapText()
 {
     delete [] m_vertexBuffer;
     delete [] m_textToVertexBuffer;
@@ -148,7 +148,7 @@ static GLuint createProgram(QOpenGLFunctions* functions, const char* vertexShade
     return program;
 }
 
-bool QPBitmapText::initialize()
+bool QcknBitmapText::initialize()
 {
     DASSERT(!(m_flags & Initialized));
     DASSERT(QOpenGLContext::currentContext());
@@ -192,7 +192,7 @@ bool QPBitmapText::initialize()
     }
 }
 
-void QPBitmapText::finalize()
+void QcknBitmapText::finalize()
 {
     DASSERT(m_flags & Initialized);
     DASSERT(m_context == QOpenGLContext::currentContext());
@@ -223,7 +223,7 @@ void QPBitmapText::finalize()
 #endif
 }
 
-void QPBitmapText::setText(const char* text)
+void QcknBitmapText::setText(const char* text)
 {
     DASSERT(m_flags & Initialized);
 
@@ -331,7 +331,7 @@ void QPBitmapText::setText(const char* text)
     }
 }
 
-void QPBitmapText::updateText(const char* text, int index, int length)
+void QcknBitmapText::updateText(const char* text, int index, int length)
 {
     DASSERT(m_flags & Initialized);
     DASSERT(text);
@@ -365,7 +365,7 @@ void QPBitmapText::updateText(const char* text, int index, int length)
     }
 }
 
-void QPBitmapText::bindProgram()
+void QcknBitmapText::bindProgram()
 {
     DASSERT(m_context == QOpenGLContext::currentContext());
     DASSERT(m_flags & Initialized);
@@ -373,7 +373,7 @@ void QPBitmapText::bindProgram()
     m_functions->glUseProgram(m_program);
 }
 
-void QPBitmapText::setTransform(const QSize& viewportSize, const QPointF& position)
+void QcknBitmapText::setTransform(const QSize& viewportSize, const QPointF& position)
 {
     DASSERT(m_context == QOpenGLContext::currentContext());
     DASSERT(m_flags & Initialized);
@@ -394,7 +394,7 @@ void QPBitmapText::setTransform(const QSize& viewportSize, const QPointF& positi
     m_functions->glUniform4fv(m_programTransform, 1, transform);
 }
 
-void QPBitmapText::setOpacity(float opacity)
+void QcknBitmapText::setOpacity(float opacity)
 {
     DASSERT(m_context == QOpenGLContext::currentContext());
     DASSERT(m_flags & Initialized);
@@ -403,7 +403,7 @@ void QPBitmapText::setOpacity(float opacity)
     m_functions->glUniform1f(m_programOpacity, opacity);
 }
 
-void QPBitmapText::render()
+void QcknBitmapText::render()
 {
     DASSERT(m_context == QOpenGLContext::currentContext());
     DASSERT(m_flags & Initialized);

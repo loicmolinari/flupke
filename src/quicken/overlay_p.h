@@ -20,20 +20,20 @@
 
 #include <QtCore/QSize>
 
-#include <QuickenPerf/metrics.h>
-#include <QuickenPerf/private/bitmaptext_p.h>
-#include <QuickenPerf/private/quickenperfglobal_p.h>
+#include <Quicken/metrics.h>
+#include <Quicken/private/bitmaptext_p.h>
+#include <Quicken/private/quickenglobal_p.h>
 
 #if !defined QT_NO_DEBUG
 class QOpenGLContext;
 #endif
 
 // Renders an overlay based on various metrics.
-class QUICKEN_PERF_PRIVATE_EXPORT QPOverlay
+class QUICKEN_PRIVATE_EXPORT QcknOverlay
 {
 public:
-    QPOverlay(const char* text, int windowId);
-    ~QPOverlay();
+    QcknOverlay(const char* text, int windowId);
+    ~QcknOverlay();
 
     // Allocates/Deletes the OpenGL resources. finalize() is not called at
     // destruction, it must be explicitly called to free the resources at the
@@ -43,14 +43,14 @@ public:
     void finalize();
 
     // Sets the process metrics.
-    void setProcessMetrics(const QPMetrics& processMetrics);
+    void setProcessMetrics(const QcknMetrics& processMetrics);
 
     // Renders the overlay. Must be called in a thread with the same OpenGL
     // context bound than at initialize().
-    void render(const QPMetrics& frameMetrics, const QSize& frameSize);
+    void render(const QcknMetrics& frameMetrics, const QSize& frameSize);
 
 private:
-    void updateFrameMetrics(const QPMetrics& frameMetrics);
+    void updateFrameMetrics(const QcknMetrics& frameMetrics);
     void updateWindowMetrics(quint32 windowId, const QSize& frameSize);
     void updateProcessMetrics();
     int keywordString(int index, char* buffer, int bufferSize);
@@ -74,13 +74,13 @@ private:
         quint16 index;
         quint16 textIndex;
         quint8 width;
-    } m_metrics[QPMetrics::TypeCount][maxMetricsPerType];
-    quint8 m_metricsSize[QPMetrics::TypeCount];
-    QPBitmapText m_bitmapText;
+    } m_metrics[QcknMetrics::TypeCount][maxMetricsPerType];
+    quint8 m_metricsSize[QcknMetrics::TypeCount];
+    QcknBitmapText m_bitmapText;
     QSize m_frameSize;
     quint32 m_windowId;
     quint8 m_flags;
-    alignas(64) QPMetrics m_processMetrics;
+    alignas(64) QcknMetrics m_processMetrics;
 };
 
 #endif  // OVERLAY_P_H

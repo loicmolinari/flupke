@@ -18,13 +18,13 @@
 #ifndef METRICS_H
 #define METRICS_H
 
-#include <QuickenPerf/quickenperfglobal.h>
+#include <Quicken/quickenglobal.h>
 
 // FIXME(loicm) Using alignas() in that public header requires users to have a
 //     C++11 compiler. That also makes the use of Q_NULLPTR and Q_OVERRIDE in
 //     other public headers useless.
 
-struct QUICKEN_PERF_EXPORT QPProcessMetrics
+struct QUICKEN_EXPORT QcknProcessMetrics
 {
     // Virtual size of the process in kilobytes.
     quint32 vszMemory;
@@ -43,9 +43,9 @@ struct QUICKEN_PERF_EXPORT QPProcessMetrics
     // memory alignment, don't forget to update when adding new metrics.
     quint8 __reserved[/*12 bytes taken,*/ 100 /*bytes free*/];
 };
-Q_STATIC_ASSERT(sizeof(QPProcessMetrics) == 112);
+Q_STATIC_ASSERT(sizeof(QcknProcessMetrics) == 112);
 
-struct QUICKEN_PERF_EXPORT QPWindowMetrics
+struct QUICKEN_EXPORT QcknWindowMetrics
 {
     enum State { Hidden = 0, Shown = 1, Resized = 2, StateCount = 3 };
 
@@ -65,9 +65,9 @@ struct QUICKEN_PERF_EXPORT QPWindowMetrics
     // memory alignment, don't forget to update when adding new metrics.
     quint8 __reserved[/*9 bytes taken,*/ 103 /*bytes free*/];
 };
-Q_STATIC_ASSERT(sizeof(QPWindowMetrics) == 112);
+Q_STATIC_ASSERT(sizeof(QcknWindowMetrics) == 112);
 
-struct QUICKEN_PERF_EXPORT QPFrameMetrics
+struct QUICKEN_EXPORT QcknFrameMetrics
 {
     // The id of the window on which the frame has been rendered.
     quint32 window;
@@ -97,13 +97,13 @@ struct QUICKEN_PERF_EXPORT QPFrameMetrics
     // memory alignment, don't forget to update when adding new metrics.
     quint8 __reserved[/*48 bytes taken,*/ 64 /*bytes free*/];
 };
-Q_STATIC_ASSERT(sizeof(QPFrameMetrics) == 112);
+Q_STATIC_ASSERT(sizeof(QcknFrameMetrics) == 112);
 
-struct QUICKEN_PERF_EXPORT QPGenericMetrics
+struct QUICKEN_EXPORT QcknGenericMetrics
 {
     static const quint32 maxStringSize = 64;
 
-    // Id retrieved from QPApplicationMonitor::registerGenericMetrics().
+    // Id retrieved from QcknApplicationMonitor::registerGenericMetrics().
     quint32 id;
 
     // Size of the string (including the null-terminating char).
@@ -116,9 +116,9 @@ struct QUICKEN_PERF_EXPORT QPGenericMetrics
     // memory alignment, don't forget to update when adding new metrics.
     quint8 __reserved[/*72 bytes taken,*/ 40 /*bytes free*/];
 };
-Q_STATIC_ASSERT(sizeof(QPGenericMetrics) == 112);
+Q_STATIC_ASSERT(sizeof(QcknGenericMetrics) == 112);
 
-struct QUICKEN_PERF_EXPORT QPMetrics
+struct QUICKEN_EXPORT QcknMetrics
 {
     enum Type { Process = 0, Window = 1, Frame = 2, Generic = 3, TypeCount = 4 };
 
@@ -129,33 +129,33 @@ struct QUICKEN_PERF_EXPORT QPMetrics
     alignas(8) quint64 timeStamp;
 
     union {
-        QPProcessMetrics process;
-        QPWindowMetrics window;
-        QPFrameMetrics frame;
-        QPGenericMetrics generic;
+        QcknProcessMetrics process;
+        QcknWindowMetrics window;
+        QcknFrameMetrics frame;
+        QcknGenericMetrics generic;
     };
 };
-Q_STATIC_ASSERT(sizeof(QPMetrics) == 128);
+Q_STATIC_ASSERT(sizeof(QcknMetrics) == 128);
 
-class QPMetricsUtilsPrivate;
+class QcknMetricsUtilsPrivate;
 
 // Utilities to manipulate metrics.
-class QUICKEN_PERF_EXPORT QPMetricsUtils
+class QUICKEN_EXPORT QcknMetricsUtils
 {
 public:
-    QPMetricsUtils();
-    ~QPMetricsUtils();
+    QcknMetricsUtils();
+    ~QcknMetricsUtils();
 
     // Fill the given metrics with updated process metrics.
-    void updateProcessMetrics(QPMetrics* metrics);
+    void updateProcessMetrics(QcknMetrics* metrics);
 
     // Get a time stamp in nanoseconds. The timer is started at the first call,
     // returning 0.
     static quint64 timeStamp();
 
 private:
-    QPMetricsUtilsPrivate* const d_ptr;
-    Q_DECLARE_PRIVATE(QPMetricsUtils)
+    QcknMetricsUtilsPrivate* const d_ptr;
+    Q_DECLARE_PRIVATE(QcknMetricsUtils)
 };
 
 #endif  // METRICS_H

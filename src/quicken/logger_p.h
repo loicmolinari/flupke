@@ -18,15 +18,15 @@
 #ifndef LOGGER_P_H
 #define LOGGER_P_H
 
-#include <QuickenPerf/logger.h>
+#include <Quicken/logger.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
 
-#include <QuickenPerf/metrics.h>
-#include <QuickenPerf/private/quickenperfglobal_p.h>
+#include <Quicken/metrics.h>
+#include <Quicken/private/quickenglobal_p.h>
 
-class QUICKEN_PERF_PRIVATE_EXPORT QPFileLoggerPrivate
+class QUICKEN_PRIVATE_EXPORT QcknFileLoggerPrivate
 {
 public:
     enum {
@@ -35,10 +35,10 @@ public:
         Parsable = (1 << 2)
     };
 
-    QPFileLoggerPrivate(const QString& fileName, bool parsable);
-    QPFileLoggerPrivate(FILE* fileHandle, bool parsable);
+    QcknFileLoggerPrivate(const QString& fileName, bool parsable);
+    QcknFileLoggerPrivate(FILE* fileHandle, bool parsable);
 
-    void log(const QPMetrics& metrics);
+    void log(const QcknMetrics& metrics);
 
     QFile m_file;
     QTextStream m_textStream;

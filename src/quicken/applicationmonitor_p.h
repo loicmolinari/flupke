@@ -18,7 +18,7 @@
 #ifndef APPLICATIONMONITOR_P_H
 #define APPLICATIONMONITOR_P_H
 
-#include <QuickenPerf/applicationmonitor.h>
+#include <Quicken/applicationmonitor.h>
 
 #include <QtCore/QTimer>
 #include <QtCore/QThread>
@@ -28,21 +28,21 @@
 #include <QtCore/QRunnable>
 #include <QtCore/QAtomicInteger>
 
-#include <QuickenPerf/private/overlay_p.h>
-#include <QuickenPerf/private/gputimer_p.h>
-#include <QuickenPerf/private/quickenperfglobal_p.h>
+#include <Quicken/private/overlay_p.h>
+#include <Quicken/private/gputimer_p.h>
+#include <Quicken/private/quickenglobal_p.h>
 
 class LoggingThread;
 class WindowMonitor;
 class QQuickWindow;
 
-class QUICKEN_PERF_PRIVATE_EXPORT QPApplicationMonitorPrivate
+class QUICKEN_PRIVATE_EXPORT QcknApplicationMonitorPrivate
 {
 public:
     static const int maxMonitors = 16;
     static const int maxLoggers = 8;
 
-    static inline QPApplicationMonitorPrivate* get(QPApplicationMonitor* applicationMonitor) {
+    static inline QcknApplicationMonitorPrivate* get(QcknApplicationMonitor* applicationMonitor) {
         return applicationMonitor->d_func();
     }
 
@@ -58,8 +58,8 @@ public:
         WindowMonitorMask      = 0xffff0000
     };
 
-    QPApplicationMonitorPrivate(QPApplicationMonitor* applicationMonitor);
-    ~QPApplicationMonitorPrivate();
+    QcknApplicationMonitorPrivate(QcknApplicationMonitor* applicationMonitor);
+    ~QcknApplicationMonitorPrivate();
 
     void startMonitoring(QQuickWindow* window);
     void start();
@@ -70,33 +70,33 @@ public:
     void setMonitoringFlags(quint32 flags);
     void processTimeout();
 
-    QPApplicationMonitor* const q_ptr;
-    Q_DECLARE_PUBLIC(QPApplicationMonitor)
+    QcknApplicationMonitor* const q_ptr;
+    Q_DECLARE_PUBLIC(QcknApplicationMonitor)
 
     WindowMonitor* m_monitors[maxMonitors];
-    QPLogger* m_loggers[maxLoggers];
+    QcknLogger* m_loggers[maxLoggers];
     LoggingThread* m_loggingThread;
 #if !defined(QT_NO_DEBUG)
     QGuiApplication* m_application;
 #endif
-    QPMetricsUtils m_metricsUtils;
+    QcknMetricsUtils m_metricsUtils;
     QTimer m_processTimer;
     QMutex m_monitorsMutex;
     int m_monitorCount;
     int m_loggerCount;
-    int m_updateInterval[QPMetrics::TypeCount];
+    int m_updateInterval[QcknMetrics::TypeCount];
     quint32 m_flags;
-    alignas(64) QPMetrics m_processMetrics;
+    alignas(64) QcknMetrics m_processMetrics;
 };
 
-class QUICKEN_PERF_PRIVATE_EXPORT LoggingThread : public QThread
+class QUICKEN_PRIVATE_EXPORT LoggingThread : public QThread
 {
 public:
     LoggingThread();
 
     void run() override;
-    void push(const QPMetrics* metrics);
-    void setLoggers(QPLogger** loggers, int count);
+    void push(const QcknMetrics* metrics);
+    void setLoggers(QcknLogger** loggers, int count);
     LoggingThread* ref();
     void deref();
 
@@ -108,8 +108,8 @@ private:
 
     ~LoggingThread();
 
-    QPMetrics* m_queue;
-    QPLogger* m_loggers[QPApplicationMonitorPrivate::maxLoggers];
+    QcknMetrics* m_queue;
+    QcknLogger* m_loggers[QcknApplicationMonitorPrivate::maxLoggers];
     int m_loggerCount;
     QMutex m_mutex;
     QWaitCondition m_condition;
@@ -119,13 +119,13 @@ private:
     quint8 m_flags;
 };
 
-class QUICKEN_PERF_PRIVATE_EXPORT WindowMonitorDeleter : public QRunnable
+class QUICKEN_PRIVATE_EXPORT WindowMonitorDeleter : public QRunnable
 {
 public:
-    WindowMonitorDeleter(QPApplicationMonitor* applicationMonitor, WindowMonitor* monitor)
+    WindowMonitorDeleter(QcknApplicationMonitor* applicationMonitor, WindowMonitor* monitor)
         : m_applicationMonitor(applicationMonitor)
         , m_monitor(monitor) {
-        DASSERT(applicationMonitor == QPApplicationMonitor::instance());
+        DASSERT(applicationMonitor == QcknApplicationMonitor::instance());
         DASSERT(m_applicationMonitor);
         DASSERT(monitor);
     }
@@ -134,15 +134,15 @@ public:
     void run() override;
 
 private:
-    QPApplicationMonitor* m_applicationMonitor;
+    QcknApplicationMonitor* m_applicationMonitor;
     WindowMonitor* m_monitor;
 };
 
-class QUICKEN_PERF_PRIVATE_EXPORT WindowMonitorFlagSetter : public QRunnable
+class QUICKEN_PRIVATE_EXPORT WindowMonitorFlagSetter : public QRunnable
 {
 public:
     WindowMonitorFlagSetter(WindowMonitor* monitor, quint32 flags)
-        : m_applicationMonitor(QPApplicationMonitor::instance())
+        : m_applicationMonitor(QcknApplicationMonitor::instance())
         , m_monitor(monitor)
         , m_flags(flags) {
         DASSERT(m_applicationMonitor);
@@ -153,23 +153,23 @@ public:
     void run() override {}
 
 private:
-    QPApplicationMonitor* m_applicationMonitor;
+    QcknApplicationMonitor* m_applicationMonitor;
     WindowMonitor* m_monitor;
     quint32 m_flags;
 };
 
-class QUICKEN_PERF_PRIVATE_EXPORT WindowMonitor : public QObject
+class QUICKEN_PRIVATE_EXPORT WindowMonitor : public QObject
 {
     Q_OBJECT
 
 public:
     WindowMonitor(
-        QPApplicationMonitor* applicationMonitor, QQuickWindow* window,
+        QcknApplicationMonitor* applicationMonitor, QQuickWindow* window,
         LoggingThread* loggingThread, quint32 flags, quint32 id);
     ~WindowMonitor();
 
     QQuickWindow* window() const { return m_window; }
-    void setProcessMetrics(const QPMetrics& metrics);
+    void setProcessMetrics(const QcknMetrics& metrics);
 
 private Q_SLOTS:
     void windowSceneGraphInitialized();
@@ -192,23 +192,23 @@ private:
 
     bool gpuResourcesInitialized() const { return m_flags & GpuResourcesInitialized; }
     void setFlags(quint32 flags) {
-        m_flags = (m_flags & QPApplicationMonitorPrivate::WindowMonitorMask) | flags;
+        m_flags = (m_flags & QcknApplicationMonitorPrivate::WindowMonitorMask) | flags;
     }
     void initializeGpuResources();
     void finalizeGpuResources();
 
-    QPApplicationMonitor* m_applicationMonitor;
+    QcknApplicationMonitor* m_applicationMonitor;
     LoggingThread* m_loggingThread;
     QQuickWindow* m_window;
-    QPGPUTimer m_gpuTimer;
-    QPOverlay m_overlay;  // Accessed from different threads (needs locking).
+    QcknGPUTimer m_gpuTimer;
+    QcknOverlay m_overlay;  // Accessed from different threads (needs locking).
     QMutex m_mutex;
     QElapsedTimer m_sceneGraphTimer;
     QElapsedTimer m_deltaTimer;
     quint32 m_id;
     quint32 m_flags;
     QSize m_frameSize;
-    QPMetrics m_frameMetrics;
+    QcknMetrics m_frameMetrics;
 
     friend class WindowMonitorDeleter;
     friend class WindowMonitorFlagSetter;

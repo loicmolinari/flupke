@@ -15,10 +15,10 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef QUICKENPERFGLOBAL_P_H
-#define QUICKENPERFGLOBAL_P_H
+#ifndef QUICKENGLOBAL_P_H
+#define QUICKENGLOBAL_P_H
 
-#include <QuickenPerf/quickenperfglobal.h>
+#include <Quicken/quickenglobal.h>
 
 // Logging macros, debug macros are compiled out for release builds.
 #define LOG(...) qDebug(__VA_ARGS__)
@@ -49,10 +49,10 @@ template<typename T, size_t N> constexpr size_t ARRAY_SIZE(T (&)[N]) { return N;
 
 #define IS_POWER_OF_TWO(n) !((n) & ((n) - 1))
 
-#define QUICKEN_PERF_PRIVATE_EXPORT QUICKEN_PERF_EXPORT
+#define QUICKEN_PRIVATE_EXPORT QUICKEN_EXPORT
 
 // Allocates size bytes and returns an pointer to the aligned memory. alignment
 // must be a power-of-two and size a multiple of alignment.
 void* alignedAlloc(size_t alignment, size_t size);
 
-#endif  // QUICKENPERFGLOBAL_P_H
+#endif  // QUICKENGLOBAL_P_H

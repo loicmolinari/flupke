@@ -24,17 +24,17 @@
 
 #include <QtCore/QElapsedTimer>
 
-#include "quickenperfglobal_p.h"
+#include "quickenglobal_p.h"
 
 const int bufferSize = 128;
 const int bufferAlignment = 64;
 
-QPMetricsUtils::QPMetricsUtils()
-    : d_ptr(new QPMetricsUtilsPrivate)
+QcknMetricsUtils::QcknMetricsUtils()
+    : d_ptr(new QcknMetricsUtilsPrivate)
 {
 }
 
-QPMetricsUtilsPrivate::QPMetricsUtilsPrivate()
+QcknMetricsUtilsPrivate::QcknMetricsUtilsPrivate()
 {
 #if !defined(QT_NO_DEBUG)
     ASSERT(m_buffer = static_cast<char*>(alignedAlloc(bufferAlignment, bufferSize)));
@@ -47,28 +47,28 @@ QPMetricsUtilsPrivate::QPMetricsUtilsPrivate()
     m_pageSize = sysconf(_SC_PAGESIZE);
 }
 
-QPMetricsUtils::~QPMetricsUtils()
+QcknMetricsUtils::~QcknMetricsUtils()
 {
     delete d_ptr;
 }
 
-QPMetricsUtilsPrivate::~QPMetricsUtilsPrivate()
+QcknMetricsUtilsPrivate::~QcknMetricsUtilsPrivate()
 {
     free(m_buffer);
 }
 
-void QPMetricsUtils::updateProcessMetrics(QPMetrics* metrics)
+void QcknMetricsUtils::updateProcessMetrics(QcknMetrics* metrics)
 {
     DASSERT(metrics);
-    Q_D(QPMetricsUtils);
+    Q_D(QcknMetricsUtils);
 
-    metrics->type = QPMetrics::Process;
-    metrics->timeStamp = QPMetricsUtils::timeStamp();
+    metrics->type = QcknMetrics::Process;
+    metrics->timeStamp = QcknMetricsUtils::timeStamp();
     d->updateCpuUsage(metrics);
     d->updateProcStatMetrics(metrics);
 }
 
-void QPMetricsUtilsPrivate::updateCpuUsage(QPMetrics* metrics)
+void QcknMetricsUtilsPrivate::updateCpuUsage(QcknMetrics* metrics)
 {
     // times() is a Linux syscall giving CPU times used by the process. The
     // granularity of the unit returned by the (some?) kernel (clock ticks)
@@ -88,7 +88,7 @@ void QPMetricsUtilsPrivate::updateCpuUsage(QPMetrics* metrics)
     }
 }
 
-void QPMetricsUtilsPrivate::updateProcStatMetrics(QPMetrics* metrics)
+void QcknMetricsUtilsPrivate::updateProcStatMetrics(QcknMetrics* metrics)
 {
     int fd = open("/proc/self/stat", O_RDONLY);
     if (fd == -1) {
@@ -146,7 +146,7 @@ void QPMetricsUtilsPrivate::updateProcStatMetrics(QPMetrics* metrics)
 }
 
 // static.
-quint64 QPMetricsUtils::timeStamp()
+quint64 QcknMetricsUtils::timeStamp()
 {
     static QElapsedTimer timer;
 

@@ -19,13 +19,13 @@
 
 #include <QtCore/QElapsedTimer>
 
-#include "quickenperfglobal_p.h"
+#include "quickenglobal_p.h"
 
 #if !defined(QT_OPENGL_ES) && !defined(GL_TIME_ELAPSED)
 #define GL_TIME_ELAPSED 0x88BF  // For GL_EXT_timer_query.
 #endif
 
-void QPGPUTimer::initialize()
+void QcknGPUTimer::initialize()
 {
     DASSERT(QOpenGLContext::currentContext());
     DASSERT(m_type == Unset);
@@ -55,7 +55,7 @@ void QPGPUTimer::initialize()
             EGLint (QOPENGLF_APIENTRYP)(EGLDisplay, EGLSyncKHR, EGLint, EGLTimeKHR)>(
                 eglGetProcAddress("eglClientWaitSyncKHR"));
         m_type = KHRFence;
-        DLOG("QPGPUTimer is based on GL_OES_EGL_sync");
+        DLOG("QcknGPUTimer is based on GL_OES_EGL_sync");
 
     // NVFence.
     } else if (glExtensions.contains("GL_NV_fence")) {
@@ -70,7 +70,7 @@ void QPGPUTimer::initialize()
             eglGetProcAddress("glFinishFenceNV"));
         m_fenceNV.genFencesNV(2, m_fence);
         m_type = NVFence;
-        DLOG("QPGPUTimer is based on GL_NV_fence");
+        DLOG("QcknGPUTimer is based on GL_NV_fence");
     }
 #else
     // We could use the thin QOpenGLTimerQuery wrapper from Qt 5.1, but the lack
@@ -96,7 +96,7 @@ void QPGPUTimer::initialize()
             context->getProcAddress("glQueryCounter"));
         m_timerQuery.genQueries(2, m_timer);
         m_type = ARBTimerQuery;
-        DLOG("QPGPUTimer is based on GL_ARB_timer_query");
+        DLOG("QcknGPUTimer is based on GL_ARB_timer_query");
 
     // EXTTimerQuery.
     } else if (context->hasExtension(QByteArrayLiteral("GL_EXT_timer_query"))) {
@@ -114,17 +114,17 @@ void QPGPUTimer::initialize()
                 context->getProcAddress("glGetQueryObjectui64vEXT"));
         m_timerQuery.genQueries(1, m_timer);
         m_type = EXTTimerQuery;
-        DLOG("QPGPUTimer is based on GL_EXT_timer_query");
+        DLOG("QcknGPUTimer is based on GL_EXT_timer_query");
     }
 #endif
 
     else {
         m_type = Finish;
-        DLOG("QPGPUTimer is based on glFinish");
+        DLOG("QcknGPUTimer is based on glFinish");
     }
 }
 
-void QPGPUTimer::finalize()
+void QcknGPUTimer::finalize()
 {
     DASSERT(m_context == QOpenGLContext::currentContext());
     DASSERT(m_type != Unset);
@@ -160,7 +160,7 @@ void QPGPUTimer::finalize()
 #endif
 }
 
-void QPGPUTimer::start()
+void QcknGPUTimer::start()
 {
     DASSERT(m_context == QOpenGLContext::currentContext());
     DASSERT(m_type != Unset);
@@ -192,7 +192,7 @@ void QPGPUTimer::start()
 #endif
 }
 
-quint64 QPGPUTimer::stop()
+quint64 QcknGPUTimer::stop()
 {
     DASSERT(m_context == QOpenGLContext::currentContext());
     DASSERT(m_type != Unset);

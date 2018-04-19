@@ -15,15 +15,15 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef QUICKENPERFGLOBAL_H
-#define QUICKENPERFGLOBAL_H
+#ifndef QUICKENGLOBAL_H
+#define QUICKENGLOBAL_H
 
 #include <QtCore/QtGlobal>
 
-#if defined(QT_BUILD_QUICKENPERF_LIB)
-#define QUICKEN_PERF_EXPORT Q_DECL_EXPORT
+#if defined(QT_BUILD_QUICKEN_LIB)
+#define QUICKEN_EXPORT Q_DECL_EXPORT
 #else
-#define QUICKEN_PERF_EXPORT Q_DECL_IMPORT
+#define QUICKEN_EXPORT Q_DECL_IMPORT
 #endif
 
-#endif  // QUICKENPERFGLOBAL_H
+#endif  // QUICKENGLOBAL_H

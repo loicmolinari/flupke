@@ -1,3 +1,3 @@
 %modules = (
-    "QuickenPerf" => "$basedir/src/perf",
+    "Quicken" => "$basedir/src/quicken",
 );
