@@ -1,0 +1,5 @@
+module Quicken.Items
+plugin quickenitemsplugin
+classname QuickenItemsPlugin
+typeinfo plugins.qmltypes
+designersupported

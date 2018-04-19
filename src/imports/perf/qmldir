@@ -1,0 +1,4 @@
+module Quicken.Perf
+plugin quickenperfplugin
+classname QuickenPerfPlugin
+typeinfo plugins.qmltypes

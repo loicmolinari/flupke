@@ -6,9 +6,7 @@ write_file($$PWD/.build_paths.inc, BUILD_PATHS_CONTENT)
 requires(qtHaveModule(quick))
 load(qt_parts)
 
-SUBDIRS += \
-    src \
-    tools
+SUBDIRS += src tools
 
 OTHER_FILES += \
     $$PWD/.qmake.conf \
