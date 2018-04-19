@@ -2,8 +2,8 @@ TEMPLATE = subdirs
 
 # Libraries
 
-perf_lib.subdir = QuickenPerf
-perf_lib.target = QuickenPerf-lib
+perf_lib.subdir = perf
+perf_lib.target = perf-lib
 SUBDIRS += perf_lib
 
 # QML modules

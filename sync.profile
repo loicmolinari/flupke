@@ -1,5 +1,5 @@
 %modules = ( # path to module name map
-    "QuickenPerf" => "$basedir/src/QuickenPerf",
+    "QuickenPerf" => "$basedir/src/perf",
 );
 %moduleheaders = ( # restrict the module headers to those found in relative path
 );
