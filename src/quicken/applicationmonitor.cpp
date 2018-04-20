@@ -271,6 +271,7 @@ void QcknApplicationMonitorPrivate::startMonitoring(QQuickWindow* window)
         static quint32 id = 0;
         m_monitors[m_monitorCount] =
             new WindowMonitor(q_func(), window, m_loggingThread->ref(), m_flags, ++id);
+        m_metricsUtils.updateProcessMetrics(&m_processMetrics);
         m_monitors[m_monitorCount]->setProcessMetrics(m_processMetrics);
         m_monitorCount++;
     } else {
