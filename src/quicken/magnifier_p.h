@@ -14,25 +14,27 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#include <QtQml/qqmlextensionplugin.h>
+#ifndef MAGNIFIER_P_H
+#define MAGNIFIER_P_H
 
-#include <Quicken/Quicken>  // FIXME
+#include <QtQuick/QQuickItem>
 
-class QuickenPerfPlugin : public QQmlExtensionPlugin
+#include <private/quickenglobal_p.h>
+
+class QUICKEN_PRIVATE_EXPORT QcknMagnifier : public QQuickItem
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID QQmlExtensionInterface_iid)
 
 public:
-    QuickenPerfPlugin(QObject* parent = Q_NULLPTR) : QQmlExtensionPlugin(parent) { }
-    ~QuickenPerfPlugin() { }
+    QcknMagnifier(QQuickItem* parent = Q_NULLPTR);
 
-    void registerTypes(const char* uri) Q_DECL_OVERRIDE {
-        Q_ASSERT(QLatin1String(uri) == QLatin1String("Quicken.Perf"));
-        Q_UNUSED(uri);
+protected:
+    QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* data) Q_DECL_OVERRIDE;
 
-        // FIXME Register types here.
-    }
+private:
+    Q_DISABLE_COPY(QcknMagnifier)
 };
 
-#include "plugin.moc"
+QML_DECLARE_TYPE(QcknMagnifier)
+
+#endif  // MAGNIFIER_P_H

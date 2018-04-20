@@ -14,25 +14,33 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#include <QtQml/qqmlextensionplugin.h>
+#include "magnifier_p.h"
 
-#include <Quicken/Quicken>  // FIXME
+#include "magnifiernode_p.h"
 
-class QuickenPerfPlugin : public QQmlExtensionPlugin
+QcknMagnifier::QcknMagnifier(QQuickItem* parent)
+    : QQuickItem(parent)
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID QQmlExtensionInterface_iid)
+    setFlag(ItemHasContents);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    setAcceptTouchEvents(false);
+#endif
+}
+ 
+QSGNode* QcknMagnifier::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* data)
+{
+    Q_UNUSED(data);
 
-public:
-    QuickenPerfPlugin(QObject* parent = Q_NULLPTR) : QQmlExtensionPlugin(parent) { }
-    ~QuickenPerfPlugin() { }
+    const float w = width();
+    const float h = height();
 
-    void registerTypes(const char* uri) Q_DECL_OVERRIDE {
-        Q_ASSERT(QLatin1String(uri) == QLatin1String("Quicken.Perf"));
-        Q_UNUSED(uri);
-
-        // FIXME Register types here.
+    if (w <= 0.0f || h <= 0.0f) {
+        delete oldNode;
+        return nullptr;
     }
-};
 
-#include "plugin.moc"
+    QcknMagnifierNode* node = oldNode ? static_cast<QcknMagnifierNode*>(oldNode) : new QcknMagnifierNode;
+    node->update(w, h);
+
+    return node;
+}

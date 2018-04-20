@@ -16,7 +16,7 @@
 
 #include <QtQml/qqmlextensionplugin.h>
 
-#include <Quicken/Quicken>  // FIXME
+#include <Quicken/private/magnifier_p.h>
 
 class QuickenItemsPlugin : public QQmlExtensionPlugin
 {
@@ -25,22 +25,13 @@ class QuickenItemsPlugin : public QQmlExtensionPlugin
 
 public:
     QuickenItemsPlugin(QObject* parent = Q_NULLPTR) : QQmlExtensionPlugin(parent) { }
+    ~QuickenItemsPlugin() { }
 
     void registerTypes(const char* uri) Q_DECL_OVERRIDE {
         Q_ASSERT(QLatin1String(uri) == QLatin1String("Quicken.Items"));
-        Q_UNUSED(uri);
-        moduleDefined = true;
 
-        // FIXME Register types here.
+        qmlRegisterType<QcknMagnifier>(uri, 0, 1, "Magnifier");
     }
-
-    ~QuickenItemsPlugin() {
-        if (moduleDefined) {
-            // FIXME Cleanup here.
-        }
-    }
-
-    bool moduleDefined = false;
 };
 
 #include "plugin.moc"
