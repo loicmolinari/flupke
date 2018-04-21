@@ -26,7 +26,7 @@
 #include <Quicken/metrics.h>
 #include <Quicken/private/quickenglobal_p.h>
 
-class QUICKEN_PRIVATE_EXPORT QcknFileLoggerPrivate
+class QUICKEN_PRIVATE_EXPORT QuickenFileLoggerPrivate
 {
 public:
     enum {
@@ -35,10 +35,10 @@ public:
         Parsable = (1 << 2)
     };
 
-    QcknFileLoggerPrivate(const QString& fileName, bool parsable);
-    QcknFileLoggerPrivate(FILE* fileHandle, bool parsable);
+    QuickenFileLoggerPrivate(const QString& fileName, bool parsable);
+    QuickenFileLoggerPrivate(FILE* fileHandle, bool parsable);
 
-    void log(const QcknMetrics& metrics);
+    void log(const QuickenMetrics& metrics);
 
     QFile m_file;
     QTextStream m_textStream;

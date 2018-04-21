@@ -30,7 +30,7 @@ public:
     void registerTypes(const char* uri) Q_DECL_OVERRIDE {
         Q_ASSERT(QLatin1String(uri) == QLatin1String("Quicken.Items"));
 
-        qmlRegisterType<QcknMagnifier>(uri, 0, 1, "Magnifier");
+        qmlRegisterType<QuickenMagnifier>(uri, 0, 1, "Magnifier");
     }
 };
 

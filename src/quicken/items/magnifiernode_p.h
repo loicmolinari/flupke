@@ -22,10 +22,10 @@
 
 #include <Quicken/private/quickenglobal_p.h>
 
-class QUICKEN_PRIVATE_EXPORT QcknMagnifierOpaqueShader : public QSGMaterialShader
+class QUICKEN_PRIVATE_EXPORT QuickenMagnifierOpaqueShader : public QSGMaterialShader
 {
 public:
-    QcknMagnifierOpaqueShader() {
+    QuickenMagnifierOpaqueShader() {
         setShaderSourceFile(QOpenGLShader::Vertex,
                             QStringLiteral(":/quicken/shaders/magnifier.vert"));
         setShaderSourceFile(QOpenGLShader::Fragment,
@@ -52,20 +52,20 @@ private:
     int m_matrixId;
 };
 
-class QUICKEN_PRIVATE_EXPORT QcknMagnifierShader : public QcknMagnifierOpaqueShader
+class QUICKEN_PRIVATE_EXPORT QuickenMagnifierShader : public QuickenMagnifierOpaqueShader
 {
 public:
-    QcknMagnifierShader() : QcknMagnifierOpaqueShader() {
+    QuickenMagnifierShader() : QuickenMagnifierOpaqueShader() {
         setShaderSourceFile(QOpenGLShader::Fragment,
                             QStringLiteral(":/quicken/shaders/magnifier.frag"));
     }
     void initialize() Q_DECL_OVERRIDE {
-        QcknMagnifierOpaqueShader::initialize();
+        QuickenMagnifierOpaqueShader::initialize();
         m_opacityId = program()->uniformLocation("opacity");
     }
     void updateState(
         const RenderState& state, QSGMaterial* newEffect, QSGMaterial* oldEffect) Q_DECL_OVERRIDE {
-        QcknMagnifierOpaqueShader::updateState(state, newEffect, oldEffect);
+        QuickenMagnifierOpaqueShader::updateState(state, newEffect, oldEffect);
         if (state.isOpacityDirty()) {
             program()->setUniformValue(m_opacityId, state.opacity());
         }
@@ -76,10 +76,10 @@ private:
 };
 
 template <bool opaque>
-class QUICKEN_PRIVATE_EXPORT QcknMagnifierMaterial : public QSGMaterial
+class QUICKEN_PRIVATE_EXPORT QuickenMagnifierMaterial : public QSGMaterial
 {
 public:
-    QcknMagnifierMaterial() {
+    QuickenMagnifierMaterial() {
         setFlag(Blending, !opaque);
     }
 
@@ -88,7 +88,7 @@ public:
         return opaque ? &type[0] : &type[1];
     }
     QSGMaterialShader* createShader() const Q_DECL_OVERRIDE {
-        return opaque ? new QcknMagnifierOpaqueShader : new QcknMagnifierShader;
+        return opaque ? new QuickenMagnifierOpaqueShader : new QuickenMagnifierShader;
     }
     int compare(const QSGMaterial* other) const Q_DECL_OVERRIDE {
         Q_UNUSED(other);
@@ -98,11 +98,11 @@ public:
 private:
 };
 
-class QUICKEN_PRIVATE_EXPORT QcknMagnifierNode : public QSGGeometryNode
+class QUICKEN_PRIVATE_EXPORT QuickenMagnifierNode : public QSGGeometryNode
 {
 public:
-    QcknMagnifierNode();
-    ~QcknMagnifierNode();
+    QuickenMagnifierNode();
+    ~QuickenMagnifierNode();
 
     void preprocess() Q_DECL_OVERRIDE;
 
@@ -125,8 +125,8 @@ private:
         return attributeSet;
     }
 
-    QcknMagnifierMaterial<false> m_material;
-    QcknMagnifierMaterial<true> m_opaqueMaterial;
+    QuickenMagnifierMaterial<false> m_material;
+    QuickenMagnifierMaterial<true> m_opaqueMaterial;
     QSGGeometry m_geometry;
 };
 

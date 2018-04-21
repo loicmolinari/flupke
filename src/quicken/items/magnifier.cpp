@@ -18,7 +18,7 @@
 
 #include "magnifiernode_p.h"
 
-QcknMagnifier::QcknMagnifier(QQuickItem* parent)
+QuickenMagnifier::QuickenMagnifier(QQuickItem* parent)
     : QQuickItem(parent)
 {
     setFlag(ItemHasContents);
@@ -27,7 +27,7 @@ QcknMagnifier::QcknMagnifier(QQuickItem* parent)
 #endif
 }
  
-QSGNode* QcknMagnifier::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* data)
+QSGNode* QuickenMagnifier::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* data)
 {
     Q_UNUSED(data);
 
@@ -39,7 +39,8 @@ QSGNode* QcknMagnifier::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* d
         return nullptr;
     }
 
-    QcknMagnifierNode* node = oldNode ? static_cast<QcknMagnifierNode*>(oldNode) : new QcknMagnifierNode;
+    QuickenMagnifierNode* node =
+        oldNode ? static_cast<QuickenMagnifierNode*>(oldNode) : new QuickenMagnifierNode;
     node->update(w, h);
 
     return node;

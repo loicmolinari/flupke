@@ -29,12 +29,12 @@
 const int bufferSize = 128;
 const int bufferAlignment = 64;
 
-QcknMetricsUtils::QcknMetricsUtils()
-    : d_ptr(new QcknMetricsUtilsPrivate)
+QuickenMetricsUtils::QuickenMetricsUtils()
+    : d_ptr(new QuickenMetricsUtilsPrivate)
 {
 }
 
-QcknMetricsUtilsPrivate::QcknMetricsUtilsPrivate()
+QuickenMetricsUtilsPrivate::QuickenMetricsUtilsPrivate()
 {
 #if !defined(QT_NO_DEBUG)
     ASSERT(m_buffer = static_cast<char*>(alignedAlloc(bufferAlignment, bufferSize)));
@@ -47,28 +47,28 @@ QcknMetricsUtilsPrivate::QcknMetricsUtilsPrivate()
     m_pageSize = sysconf(_SC_PAGESIZE);
 }
 
-QcknMetricsUtils::~QcknMetricsUtils()
+QuickenMetricsUtils::~QuickenMetricsUtils()
 {
     delete d_ptr;
 }
 
-QcknMetricsUtilsPrivate::~QcknMetricsUtilsPrivate()
+QuickenMetricsUtilsPrivate::~QuickenMetricsUtilsPrivate()
 {
     free(m_buffer);
 }
 
-void QcknMetricsUtils::updateProcessMetrics(QcknMetrics* metrics)
+void QuickenMetricsUtils::updateProcessMetrics(QuickenMetrics* metrics)
 {
     DASSERT(metrics);
-    Q_D(QcknMetricsUtils);
+    Q_D(QuickenMetricsUtils);
 
-    metrics->type = QcknMetrics::Process;
-    metrics->timeStamp = QcknMetricsUtils::timeStamp();
+    metrics->type = QuickenMetrics::Process;
+    metrics->timeStamp = QuickenMetricsUtils::timeStamp();
     d->updateCpuUsage(metrics);
     d->updateProcStatMetrics(metrics);
 }
 
-void QcknMetricsUtilsPrivate::updateCpuUsage(QcknMetrics* metrics)
+void QuickenMetricsUtilsPrivate::updateCpuUsage(QuickenMetrics* metrics)
 {
     // times() is a Linux syscall giving CPU times used by the process. The
     // granularity of the unit returned by the (some?) kernel (clock ticks)
@@ -88,7 +88,7 @@ void QcknMetricsUtilsPrivate::updateCpuUsage(QcknMetrics* metrics)
     }
 }
 
-void QcknMetricsUtilsPrivate::updateProcStatMetrics(QcknMetrics* metrics)
+void QuickenMetricsUtilsPrivate::updateProcStatMetrics(QuickenMetrics* metrics)
 {
     int fd = open("/proc/self/stat", O_RDONLY);
     if (fd == -1) {
@@ -146,7 +146,7 @@ void QcknMetricsUtilsPrivate::updateProcStatMetrics(QcknMetrics* metrics)
 }
 
 // static.
-quint64 QcknMetricsUtils::timeStamp()
+quint64 QuickenMetricsUtils::timeStamp()
 {
     static QElapsedTimer timer;
 

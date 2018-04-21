@@ -46,7 +46,7 @@
 #include <QtCore/QTranslator>
 #include <QtCore/QLibraryInfo>
 
-#include <Quicken/QcknApplicationMonitor>
+#include <Quicken/QuickenApplicationMonitor>
 
 #ifdef QML_RUNTIME_TESTING
 class RenderStatistics
@@ -524,31 +524,31 @@ static QQuickWindow::TextRenderType parseTextRenderType(const QString &renderTyp
 }
 
 static void setQuickenPerfOptions(Options* options) {
-    QcknApplicationMonitor* applicationMonitor = QcknApplicationMonitor::instance();
+    QuickenApplicationMonitor* applicationMonitor = QuickenApplicationMonitor::instance();
     if (!options->metricsLoggingFilter.isEmpty()) {
         QStringList filterList =
             options->metricsLoggingFilter.split(QChar(','), QString::SkipEmptyParts);
-        QcknApplicationMonitor::LoggingFilters filter = 0;
+        QuickenApplicationMonitor::LoggingFilters filter = 0;
         const int size = filterList.size();
         for (int i = 0; i < size; ++i) {
             if (filterList[i] == QLatin1String("window")) {
-                filter |= QcknApplicationMonitor::WindowMetrics;
+                filter |= QuickenApplicationMonitor::WindowMetrics;
             } else if (filterList[i] == QLatin1String("process")) {
-                filter |= QcknApplicationMonitor::ProcessMetrics;
+                filter |= QuickenApplicationMonitor::ProcessMetrics;
             } else if (filterList[i] == QLatin1String("frame")) {
-                filter |= QcknApplicationMonitor::FrameMetrics;
+                filter |= QuickenApplicationMonitor::FrameMetrics;
             } else if (filterList[i] == QLatin1String("generic")) {
-                filter |= QcknApplicationMonitor::GenericMetrics;
+                filter |= QuickenApplicationMonitor::GenericMetrics;
             }
         }
         applicationMonitor->setLoggingFilter(filter);
     }
     if (!options->metricsLogging.isEmpty()) {
-        QcknLogger* logger;
+        QuickenLogger* logger;
         if (options->metricsLogging == QLatin1String("stdout")) {
-            logger = new QcknFileLogger(stdout);
+            logger = new QuickenFileLogger(stdout);
         } else {
-            logger = new QcknFileLogger(options->metricsLogging);
+            logger = new QuickenFileLogger(options->metricsLogging);
         }
         if (logger->isOpen()) {
             applicationMonitor->installLogger(logger);

@@ -21,20 +21,20 @@
 
 #include <private/quickenglobal_p.h>
 
-class QUICKEN_PRIVATE_EXPORT QcknMagnifier : public QQuickItem
+class QUICKEN_PRIVATE_EXPORT QuickenMagnifier : public QQuickItem
 {
     Q_OBJECT
 
 public:
-    QcknMagnifier(QQuickItem* parent = Q_NULLPTR);
+    QuickenMagnifier(QQuickItem* parent = Q_NULLPTR);
 
 protected:
     QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* data) Q_DECL_OVERRIDE;
 
 private:
-    Q_DISABLE_COPY(QcknMagnifier)
+    Q_DISABLE_COPY(QuickenMagnifier)
 };
 
-QML_DECLARE_TYPE(QcknMagnifier)
+QML_DECLARE_TYPE(QuickenMagnifier)
 
 #endif  // MAGNIFIER_P_H

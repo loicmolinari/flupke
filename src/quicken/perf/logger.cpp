@@ -23,12 +23,12 @@
 #include "metrics.h"
 #include "quickenglobal_p.h"
 
-QcknFileLogger::QcknFileLogger(const QString& fileName, bool parsable)
-    : d_ptr(new QcknFileLoggerPrivate(fileName, parsable))
+QuickenFileLogger::QuickenFileLogger(const QString& fileName, bool parsable)
+    : d_ptr(new QuickenFileLoggerPrivate(fileName, parsable))
 {
 }
 
-QcknFileLoggerPrivate::QcknFileLoggerPrivate(const QString& fileName, bool parsable)
+QuickenFileLoggerPrivate::QuickenFileLoggerPrivate(const QString& fileName, bool parsable)
 {
     if (QDir::isRelativePath(fileName)) {
         m_file.setFileName(QString(QDir::currentPath() + QDir::separator() + fileName));
@@ -52,12 +52,12 @@ QcknFileLoggerPrivate::QcknFileLoggerPrivate(const QString& fileName, bool parsa
     }
 }
 
-QcknFileLogger::QcknFileLogger(FILE* fileHandle, bool parsable)
-    : d_ptr(new QcknFileLoggerPrivate(fileHandle, parsable))
+QuickenFileLogger::QuickenFileLogger(FILE* fileHandle, bool parsable)
+    : d_ptr(new QuickenFileLoggerPrivate(fileHandle, parsable))
 {
 }
 
-QcknFileLoggerPrivate::QcknFileLoggerPrivate(FILE* fileHandle, bool parsable)
+QuickenFileLoggerPrivate::QuickenFileLoggerPrivate(FILE* fileHandle, bool parsable)
 {
     if (m_file.open(fileHandle, QIODevice::WriteOnly | QIODevice::Text | QIODevice::Unbuffered)) {
         m_textStream.setDevice(&m_file);
@@ -80,25 +80,25 @@ QcknFileLoggerPrivate::QcknFileLoggerPrivate(FILE* fileHandle, bool parsable)
     }
 }
 
-QcknFileLogger::~QcknFileLogger()
+QuickenFileLogger::~QuickenFileLogger()
 {
     delete d_ptr;
 }
 
-bool QcknFileLogger::isOpen()
+bool QuickenFileLogger::isOpen()
 {
-    return !!(d_func()->m_flags & QcknFileLoggerPrivate::Open);
+    return !!(d_func()->m_flags & QuickenFileLoggerPrivate::Open);
 }
 
 // FIXME(loicm) We should maybe get rid of QTextStream and directly write to the
 //     device for efficiency reasons.
 
-void QcknFileLogger::log(const QcknMetrics& metrics)
+void QuickenFileLogger::log(const QuickenMetrics& metrics)
 {
     d_func()->log(metrics);
 }
 
-void QcknFileLoggerPrivate::log(const QcknMetrics& metrics)
+void QuickenFileLoggerPrivate::log(const QuickenMetrics& metrics)
 {
     if (m_flags & Open) {
         // ANSI/VT100 terminal codes.
@@ -112,7 +112,7 @@ void QcknFileLoggerPrivate::log(const QcknMetrics& metrics)
             : timeStamp.toString(QStringLiteral("hh:mm:ss:zzz"));
 
         switch (metrics.type) {
-        case QcknMetrics::Process: {
+        case QuickenMetrics::Process: {
             if (m_flags & Parsable) {
                 m_textStream
                     << "P "
@@ -134,7 +134,7 @@ void QcknFileLoggerPrivate::log(const QcknMetrics& metrics)
             break;
         }
 
-        case QcknMetrics::Frame:
+        case QuickenMetrics::Frame:
             if (m_flags & Parsable) {
                 m_textStream
                     << "F "
@@ -160,7 +160,7 @@ void QcknFileLoggerPrivate::log(const QcknMetrics& metrics)
             }
             break;
 
-        case QcknMetrics::Window: {
+        case QuickenMetrics::Window: {
             if (m_flags & Parsable) {
                 m_textStream
                     << "W "
@@ -171,7 +171,7 @@ void QcknFileLoggerPrivate::log(const QcknMetrics& metrics)
                     << metrics.window.height << '\n' << flush;
             } else {
                 const char* const stateString[] = { "Hidden", "Shown", "Resized" };
-                Q_STATIC_ASSERT(ARRAY_SIZE(stateString) == QcknWindowMetrics::StateCount);
+                Q_STATIC_ASSERT(ARRAY_SIZE(stateString) == QuickenWindowMetrics::StateCount);
                 m_textStream
                     << (m_flags & Colored ? "\033[35mW\033[00m " : "W ")
                     << dim << timeString << reset << ' '
@@ -183,7 +183,7 @@ void QcknFileLoggerPrivate::log(const QcknMetrics& metrics)
             break;
         }
 
-        case QcknMetrics::Generic: {
+        case QuickenMetrics::Generic: {
             if (m_flags & Parsable) {
                 m_textStream
                     << "G "
@@ -208,18 +208,18 @@ void QcknFileLoggerPrivate::log(const QcknMetrics& metrics)
     }
 }
 
-void QcknFileLogger::setParsable(bool parsable)
+void QuickenFileLogger::setParsable(bool parsable)
 {
-    Q_D(QcknFileLogger);
+    Q_D(QuickenFileLogger);
 
     if (parsable) {
-        d->m_flags |= QcknFileLoggerPrivate::Parsable;
+        d->m_flags |= QuickenFileLoggerPrivate::Parsable;
     } else {
-        d->m_flags &= ~QcknFileLoggerPrivate::Parsable;
+        d->m_flags &= ~QuickenFileLoggerPrivate::Parsable;
     }
 }
 
-bool QcknFileLogger::parsable()
+bool QuickenFileLogger::parsable()
 {
-    return !!(d_func()->m_flags & QcknFileLoggerPrivate::Parsable);
+    return !!(d_func()->m_flags & QuickenFileLoggerPrivate::Parsable);
 }

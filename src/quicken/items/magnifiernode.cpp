@@ -16,10 +16,10 @@
 
 #include "magnifiernode_p.h"
 
-QcknMagnifierNode::QcknMagnifierNode()
+QuickenMagnifierNode::QuickenMagnifierNode()
     : QSGGeometryNode()
     , m_geometry(attributeSet(), 4, 4, GL_UNSIGNED_SHORT) {
-    DLOG("creating QcknMagnifierNode");
+    DLOG("creating QuickenMagnifierNode");
 
     const quint16 indices[] = { 0, 1, 2, 3 };
     memcpy(m_geometry.indexData(), indices, 4 * sizeof(quint16));
@@ -34,16 +34,16 @@ QcknMagnifierNode::QcknMagnifierNode()
     qsgnode_set_description(this, QLatin1String("quickenmagnifier"));
 }
 
-QcknMagnifierNode::~QcknMagnifierNode()
+QuickenMagnifierNode::~QuickenMagnifierNode()
 {
-    DLOG("detroying QcknMagnifierNode");
+    DLOG("detroying QuickenMagnifierNode");
 }
 
-void QcknMagnifierNode::preprocess()
+void QuickenMagnifierNode::preprocess()
 {
 }
 
-void QcknMagnifierNode::update(float width, float height)
+void QuickenMagnifierNode::update(float width, float height)
 {
     Vertex* v = reinterpret_cast<Vertex*>(m_geometry.vertexData());
 

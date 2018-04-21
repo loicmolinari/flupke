@@ -29,11 +29,11 @@ class QOpenGLContext;
 #endif
 
 // Renders an overlay based on various metrics.
-class QUICKEN_PRIVATE_EXPORT QcknOverlay
+class QUICKEN_PRIVATE_EXPORT QuickenOverlay
 {
 public:
-    QcknOverlay(const char* text, int windowId);
-    ~QcknOverlay();
+    QuickenOverlay(const char* text, int windowId);
+    ~QuickenOverlay();
 
     // Allocates/Deletes the OpenGL resources. finalize() is not called at
     // destruction, it must be explicitly called to free the resources at the
@@ -43,14 +43,14 @@ public:
     void finalize();
 
     // Sets the process metrics.
-    void setProcessMetrics(const QcknMetrics& processMetrics);
+    void setProcessMetrics(const QuickenMetrics& processMetrics);
 
     // Renders the overlay. Must be called in a thread with the same OpenGL
     // context bound than at initialize().
-    void render(const QcknMetrics& frameMetrics, const QSize& frameSize);
+    void render(const QuickenMetrics& frameMetrics, const QSize& frameSize);
 
 private:
-    void updateFrameMetrics(const QcknMetrics& frameMetrics);
+    void updateFrameMetrics(const QuickenMetrics& frameMetrics);
     void updateWindowMetrics(quint32 windowId, const QSize& frameSize);
     void updateProcessMetrics();
     int keywordString(int index, char* buffer, int bufferSize);
@@ -74,13 +74,13 @@ private:
         quint16 index;
         quint16 textIndex;
         quint8 width;
-    } m_metrics[QcknMetrics::TypeCount][maxMetricsPerType];
-    quint8 m_metricsSize[QcknMetrics::TypeCount];
-    QcknBitmapText m_bitmapText;
+    } m_metrics[QuickenMetrics::TypeCount][maxMetricsPerType];
+    quint8 m_metricsSize[QuickenMetrics::TypeCount];
+    QuickenBitmapText m_bitmapText;
     QSize m_frameSize;
     quint32 m_windowId;
     quint8 m_flags;
-    alignas(64) QcknMetrics m_processMetrics;
+    alignas(64) QuickenMetrics m_processMetrics;
 };
 
 #endif  // OVERLAY_P_H

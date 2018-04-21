@@ -26,14 +26,14 @@
 
 #include <Quicken/private/quickenglobal_p.h>
 
-class QUICKEN_PRIVATE_EXPORT QcknMetricsUtilsPrivate
+class QUICKEN_PRIVATE_EXPORT QuickenMetricsUtilsPrivate
 {
 public:
-    QcknMetricsUtilsPrivate();
-    ~QcknMetricsUtilsPrivate();
+    QuickenMetricsUtilsPrivate();
+    ~QuickenMetricsUtilsPrivate();
 
-    void updateCpuUsage(QcknMetrics* metrics);
-    void updateProcStatMetrics(QcknMetrics* metrics);
+    void updateCpuUsage(QuickenMetrics* metrics);
+    void updateProcStatMetrics(QuickenMetrics* metrics);
 
     char* m_buffer;
     QElapsedTimer m_cpuTimer;

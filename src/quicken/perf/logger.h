@@ -22,39 +22,39 @@
 
 #include <Quicken/quickenglobal.h>
 
-class QcknFileLoggerPrivate;
-struct QcknMetrics;
+class QuickenFileLoggerPrivate;
+struct QuickenMetrics;
 
 // Log metrics to a specific device.
-class QUICKEN_EXPORT QcknLogger
+class QUICKEN_EXPORT QuickenLogger
 {
 public:
-    virtual ~QcknLogger() {}
+    virtual ~QuickenLogger() {}
 
     // Log metrics.
-    virtual void log(const QcknMetrics& metrics) = 0;
+    virtual void log(const QuickenMetrics& metrics) = 0;
 
     // Get whether the target device has been opened successfully or not.
     virtual bool isOpen() = 0;
 };
 
 // Log metrics to a file.
-class QUICKEN_EXPORT QcknFileLogger : public QcknLogger
+class QUICKEN_EXPORT QuickenFileLogger : public QuickenLogger
 {
 public:
-    QcknFileLogger(const QString& filename, bool parsable = true);
-    QcknFileLogger(FILE* fileHandle, bool parsable = false);
-    ~QcknFileLogger();
+    QuickenFileLogger(const QString& filename, bool parsable = true);
+    QuickenFileLogger(FILE* fileHandle, bool parsable = false);
+    ~QuickenFileLogger();
 
-    void log(const QcknMetrics& metrics) Q_DECL_OVERRIDE;
+    void log(const QuickenMetrics& metrics) Q_DECL_OVERRIDE;
     bool isOpen() Q_DECL_OVERRIDE;
 
     void setParsable(bool parsable);
     bool parsable();
 
 private:
-    QcknFileLoggerPrivate* const d_ptr;
-    Q_DECLARE_PRIVATE(QcknFileLogger)
+    QuickenFileLoggerPrivate* const d_ptr;
+    Q_DECLARE_PRIVATE(QuickenFileLogger)
 };
 
 #endif  // LOGGER_H

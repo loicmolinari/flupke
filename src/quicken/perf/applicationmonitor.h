@@ -24,12 +24,12 @@
 #include <Quicken/metrics.h>
 #include <Quicken/quickenglobal.h>
 
-class QcknApplicationMonitorPrivate;
+class QuickenApplicationMonitorPrivate;
 
 // Monitor a QtQuick application by automatically tracking QtQuick windows and
 // process metrics. The metrics gathered can be logged and displayed by an
 // overlay rendered on top of each frame.
-class QUICKEN_EXPORT QcknApplicationMonitor : public QObject
+class QUICKEN_EXPORT QuickenApplicationMonitor : public QObject
 {
     Q_OBJECT
 
@@ -44,13 +44,15 @@ public:
         // Allow generic metrics logging.
         GenericMetrics = (1 << 3),
         // Allow all metrics logging.
-        AllMetrics    = (ProcessMetrics | WindowMetrics | FrameMetrics | GenericMetrics)
+        AllMetrics     = (ProcessMetrics | WindowMetrics | FrameMetrics | GenericMetrics)
     };
     Q_DECLARE_FLAGS(LoggingFilters, LoggingFilter)
 
-    // Get the unique QcknApplicationMonitor instance. A QGuiApplication instance
+    // Get the unique QuickenApplicationMonitor instance. A QGuiApplication instance
     // must be running.
-    static QcknApplicationMonitor* instance() { return self ? self : new QcknApplicationMonitor; }
+    static QuickenApplicationMonitor* instance() {
+        return self ? self : new QuickenApplicationMonitor;
+    }
 
     // Render an overlay of real-time metrics on top of each QtQuick frame.
     void setOverlay(bool overlay);
@@ -65,9 +67,9 @@ public:
     LoggingFilters loggingFilter();
 
     // Set the loggers. Empty by default, max number of loggers is 8.
-    QList<QcknLogger*> loggers();
-    bool installLogger(QcknLogger* logger);
-    bool removeLogger(QcknLogger* logger, bool free = true);
+    QList<QuickenLogger*> loggers();
+    bool installLogger(QuickenLogger* logger);
+    bool removeLogger(QuickenLogger* logger, bool free = true);
     void clearLoggers(bool free = true);
 
     // Generic system allowing to log application specific
@@ -76,41 +78,41 @@ public:
     // generic metrics with a dedicated id, a null-terminated string describing
     // the metrics and the string size with the null-terminating character. The
     // maximum string size (with the null-terminating character) is defined in
-    // QcknGenericMetrics::maxStringSize. Does not log and returns false if
+    // QuickenGenericMetrics::maxStringSize. Does not log and returns false if
     // logging is disabled or if the logging filter does not contain
     // GenericMetrics.
     quint32 registerGenericMetrics();
     bool logGenericMetrics(quint32 id, const char* string, quint32 size);
 
     // Set the time in milliseconds between two updates of metrics of a given
-    // type. -1 to disable updates. Only QcknMetrics::Process is accepted so far
-    // as metrics type, default value is 1000. Note that when the overlay is
+    // type. -1 to disable updates. Only QuickenMetrics::Process is accepted so
+    // far as metrics type, default value is 1000. Note that when the overlay is
     // enabled, a process update triggers a frame update.
-    void setUpdateInterval(QcknMetrics::Type type, int interval);
-    int updateInterval(QcknMetrics::Type type);
+    void setUpdateInterval(QuickenMetrics::Type type, int interval);
+    int updateInterval(QuickenMetrics::Type type);
 
 Q_SIGNALS:
     void overlayChanged();
     void loggingChanged();
     void loggingFilterChanged();
     void loggersChanged();
-    void updateIntervalChanged(QcknMetrics::Type type);
+    void updateIntervalChanged(QuickenMetrics::Type type);
 
 private Q_SLOTS:
     void closeDown();
     void processTimeout();
 
 private:
-    static QcknApplicationMonitor* self;
+    static QuickenApplicationMonitor* self;
 
-    QcknApplicationMonitor();
-    ~QcknApplicationMonitor();
-    Q_DISABLE_COPY(QcknApplicationMonitor)
+    QuickenApplicationMonitor();
+    ~QuickenApplicationMonitor();
+    Q_DISABLE_COPY(QuickenApplicationMonitor)
 
     bool eventFilter(QObject* object, QEvent* event) Q_DECL_OVERRIDE;
 
-    QcknApplicationMonitorPrivate* const d_ptr;
-    Q_DECLARE_PRIVATE(QcknApplicationMonitor)
+    QuickenApplicationMonitorPrivate* const d_ptr;
+    Q_DECLARE_PRIVATE(QuickenApplicationMonitor)
 };
 
 #endif  // APPLICATIONMONITOR_H

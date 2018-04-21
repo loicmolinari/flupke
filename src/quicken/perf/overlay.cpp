@@ -49,20 +49,20 @@ static const struct {
     const char* const name;
     quint16 size;
     quint16 defaultWidth;
-    QcknMetrics::Type type;
+    QuickenMetrics::Type type;
 } metricInfo[] = {
-    { "cpuUsage",    sizeof("cpuUsage") - 1,    3, QcknMetrics::Process },
-    { "threadCount", sizeof("threadCount") - 1, 3, QcknMetrics::Process },
-    { "vszMemory",   sizeof("vszMemory") - 1,   8, QcknMetrics::Process },
-    { "rssMemory",   sizeof("rssMemory") - 1,   8, QcknMetrics::Process },
-    { "windowId",    sizeof("windowId") - 1,    2, QcknMetrics::Window  },
-    { "windowSize",  sizeof("windowSize") - 1,  9, QcknMetrics::Window  },
-    { "frameNumber", sizeof("frameNumber") - 1, 7, QcknMetrics::Frame   },
-    { "deltaTime",   sizeof("deltaTime") - 1,   7, QcknMetrics::Frame   },
-    { "syncTime",    sizeof("syncTime") - 1,    7, QcknMetrics::Frame   },
-    { "renderTime",  sizeof("renderTime") - 1,  7, QcknMetrics::Frame   },
-    { "gpuTime",     sizeof("gpuTime") - 1,     7, QcknMetrics::Frame   },
-    { "totalTime",   sizeof("totalTime") - 1,   7, QcknMetrics::Frame   }
+    { "cpuUsage",    sizeof("cpuUsage") - 1,    3, QuickenMetrics::Process },
+    { "threadCount", sizeof("threadCount") - 1, 3, QuickenMetrics::Process },
+    { "vszMemory",   sizeof("vszMemory") - 1,   8, QuickenMetrics::Process },
+    { "rssMemory",   sizeof("rssMemory") - 1,   8, QuickenMetrics::Process },
+    { "windowId",    sizeof("windowId") - 1,    2, QuickenMetrics::Window  },
+    { "windowSize",  sizeof("windowSize") - 1,  9, QuickenMetrics::Window  },
+    { "frameNumber", sizeof("frameNumber") - 1, 7, QuickenMetrics::Frame   },
+    { "deltaTime",   sizeof("deltaTime") - 1,   7, QuickenMetrics::Frame   },
+    { "syncTime",    sizeof("syncTime") - 1,    7, QuickenMetrics::Frame   },
+    { "renderTime",  sizeof("renderTime") - 1,  7, QuickenMetrics::Frame   },
+    { "gpuTime",     sizeof("gpuTime") - 1,     7, QuickenMetrics::Frame   },
+    { "totalTime",   sizeof("totalTime") - 1,   7, QuickenMetrics::Frame   }
 };
 enum {
     CpuUsage = 0, ThreadCount, VszMemory, RssMemory, WindowId, WindowSize, FrameNumber, DeltaTime,
@@ -83,7 +83,7 @@ const int maxParsedTextSize = 1024;  // Including '\0'.
 static char cpuModelString[maxKeywordStringSize] = { 0 };
 static int cpuModelStringSize = 0;
 
-QcknOverlay::QcknOverlay(const char* text, int windowId)
+QuickenOverlay::QuickenOverlay(const char* text, int windowId)
     : m_parsedText(new char [maxParsedTextSize])
 #if !defined QT_NO_DEBUG
     , m_context(nullptr)
@@ -98,10 +98,10 @@ QcknOverlay::QcknOverlay(const char* text, int windowId)
 
     m_buffer = alignedAlloc(bufferAlignment, bufferSize);
     memset(&m_processMetrics, 0, sizeof(m_processMetrics));
-    m_processMetrics.type = QcknMetrics::Process;
+    m_processMetrics.type = QuickenMetrics::Process;
 }
 
-QcknOverlay::~QcknOverlay()
+QuickenOverlay::~QuickenOverlay()
 {
     DASSERT(!(m_flags & Initialized));
 
@@ -109,7 +109,7 @@ QcknOverlay::~QcknOverlay()
     delete [] m_parsedText;
 }
 
-bool QcknOverlay::initialize()
+bool QuickenOverlay::initialize()
 {
     DASSERT(!(m_flags & Initialized));
     DASSERT(QOpenGLContext::currentContext());
@@ -129,7 +129,7 @@ bool QcknOverlay::initialize()
     }
 }
 
-void QcknOverlay::finalize()
+void QuickenOverlay::finalize()
 {
     DASSERT(m_flags & Initialized);
     DASSERT(m_context == QOpenGLContext::currentContext());
@@ -142,15 +142,15 @@ void QcknOverlay::finalize()
 #endif
 }
 
-void QcknOverlay::setProcessMetrics(const QcknMetrics& processMetrics)
+void QuickenOverlay::setProcessMetrics(const QuickenMetrics& processMetrics)
 {
-    DASSERT(processMetrics.type == QcknMetrics::Process);
+    DASSERT(processMetrics.type == QuickenMetrics::Process);
 
     memcpy(&m_processMetrics, &processMetrics, sizeof(m_processMetrics));
     m_flags |= DirtyProcessMetrics;
 }
 
-void QcknOverlay::render(const QcknMetrics& frameMetrics, const QSize& frameSize)
+void QuickenOverlay::render(const QuickenMetrics& frameMetrics, const QSize& frameSize)
 {
     DASSERT(m_flags & Initialized);
     DASSERT(m_context == QOpenGLContext::currentContext());
@@ -233,18 +233,18 @@ static int timeMetricToText(quint64 metric, char* text, int width)
     return width;
 }
 
-void QcknOverlay::updateFrameMetrics(const QcknMetrics& metrics)
+void QuickenOverlay::updateFrameMetrics(const QuickenMetrics& metrics)
 {
     DASSERT(m_flags & Initialized);
     Q_STATIC_ASSERT(IS_POWER_OF_TWO(maxMetricsWidth));
 
     char* text = static_cast<char*>(m_buffer);
-    for (int i = 0; i < m_metricsSize[QcknMetrics::Frame]; i++) {
-        int textWidth = m_metrics[QcknMetrics::Frame][i].width;
+    for (int i = 0; i < m_metricsSize[QuickenMetrics::Frame]; i++) {
+        int textWidth = m_metrics[QuickenMetrics::Frame][i].width;
         DASSERT(textWidth <= maxMetricsWidth);
         memset(text, ' ', maxMetricsWidth);
 
-        switch (m_metrics[QcknMetrics::Frame][i].index) {
+        switch (m_metrics[QuickenMetrics::Frame][i].index) {
         case FrameNumber:
             integerMetricToText(metrics.frame.number, text, textWidth);
             break;
@@ -278,23 +278,23 @@ void QcknOverlay::updateFrameMetrics(const QcknMetrics& metrics)
         }
 
         m_bitmapText.updateText(
-            text, m_metrics[QcknMetrics::Frame][i].textIndex,
-            m_metrics[QcknMetrics::Frame][i].width);
+            text, m_metrics[QuickenMetrics::Frame][i].textIndex,
+            m_metrics[QuickenMetrics::Frame][i].width);
     }
 }
 
-void QcknOverlay::updateWindowMetrics(quint32 windowId, const QSize& frameSize)
+void QuickenOverlay::updateWindowMetrics(quint32 windowId, const QSize& frameSize)
 {
     DASSERT(m_flags & Initialized);
     Q_STATIC_ASSERT(IS_POWER_OF_TWO(maxMetricsWidth));
 
     char* text = static_cast<char*>(m_buffer);
-    for (int i = 0; i < m_metricsSize[QcknMetrics::Window]; i++) {
-        int textWidth = m_metrics[QcknMetrics::Window][i].width;
+    for (int i = 0; i < m_metricsSize[QuickenMetrics::Window]; i++) {
+        int textWidth = m_metrics[QuickenMetrics::Window][i].width;
         DASSERT(textWidth <= maxMetricsWidth);
         memset(text, ' ', maxMetricsWidth);
 
-        switch (m_metrics[QcknMetrics::Window][i].index) {
+        switch (m_metrics[QuickenMetrics::Window][i].index) {
         case WindowId:
             textWidth = integerMetricToText(windowId, text, textWidth);
             break;
@@ -314,23 +314,23 @@ void QcknOverlay::updateWindowMetrics(quint32 windowId, const QSize& frameSize)
         }
 
         m_bitmapText.updateText(
-            text, m_metrics[QcknMetrics::Window][i].textIndex,
-            m_metrics[QcknMetrics::Window][i].width);
+            text, m_metrics[QuickenMetrics::Window][i].textIndex,
+            m_metrics[QuickenMetrics::Window][i].width);
     }
 }
 
-void QcknOverlay::updateProcessMetrics()
+void QuickenOverlay::updateProcessMetrics()
 {
     DASSERT(m_flags & Initialized);
     Q_STATIC_ASSERT(IS_POWER_OF_TWO(maxMetricsWidth));
 
     char* text = static_cast<char*>(m_buffer);
-    for (int i = 0; i < m_metricsSize[QcknMetrics::Process]; i++) {
-        int textWidth = m_metrics[QcknMetrics::Process][i].width;
+    for (int i = 0; i < m_metricsSize[QuickenMetrics::Process]; i++) {
+        int textWidth = m_metrics[QuickenMetrics::Process][i].width;
         DASSERT(textWidth <= maxMetricsWidth);
         memset(text, ' ', maxMetricsWidth);
 
-        switch (m_metrics[QcknMetrics::Process][i].index) {
+        switch (m_metrics[QuickenMetrics::Process][i].index) {
         case CpuUsage:
             integerMetricToText(m_processMetrics.process.cpuUsage, text, textWidth);
             break;
@@ -349,8 +349,8 @@ void QcknOverlay::updateProcessMetrics()
         }
 
         m_bitmapText.updateText(
-            text, m_metrics[QcknMetrics::Process][i].textIndex,
-            m_metrics[QcknMetrics::Process][i].width);
+            text, m_metrics[QuickenMetrics::Process][i].textIndex,
+            m_metrics[QuickenMetrics::Process][i].width);
     }
 }
 
@@ -430,7 +430,7 @@ static int cpuModel(char* buffer, int bufferSize)
 // buffer of size bufferSize, the terminating null byte ('\0') is not
 // written. Returns the number of characters written. Requires an OpenGL context
 // to be bound to the current thread.
-int QcknOverlay::keywordString(int index, char* buffer, int bufferSize)
+int QuickenOverlay::keywordString(int index, char* buffer, int bufferSize)
 {
     DASSERT(index < KeywordCount);
     DASSERT(buffer);
@@ -507,7 +507,7 @@ int QcknOverlay::keywordString(int index, char* buffer, int bufferSize)
     return size;
 }
 
-void QcknOverlay::parseText()
+void QuickenOverlay::parseText()
 {
     QByteArray textLatin1 = m_text.toLatin1();
     const char* const text = textLatin1.constData();
@@ -556,7 +556,7 @@ void QcknOverlay::parseText()
                 for (int j = 0; j < MetricCount; j++) {
                     const int type = metricInfo[j].type;
                     DASSERT(type >= 0);
-                    DASSERT(type < QcknMetrics::TypeCount);
+                    DASSERT(type < QuickenMetrics::TypeCount);
                     if (m_metricsSize[type] < maxMetricsPerType &&
                         !strncmp(&text[i+1+widthOffset], metricInfo[j].name, metricInfo[j].size)) {
                         if (width == -1) {
