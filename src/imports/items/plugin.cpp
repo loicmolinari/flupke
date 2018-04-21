@@ -16,7 +16,7 @@
 
 #include <QtQml/qqmlextensionplugin.h>
 
-#include <Quicken/private/boilerplate_p.h>
+#include <Quicken/private/quickenboilerplate_p.h>
 
 class QuickenItemsPlugin : public QQmlExtensionPlugin
 {

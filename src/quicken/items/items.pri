@@ -1,11 +1,11 @@
 CONFIG(debug, debug|release) {
     HEADERS += \
-        $$PWD/boilerplate_p.h \
-        $$PWD/boilerplatenode_p.h
+        $$PWD/quickenboilerplate_p.h \
+        $$PWD/quickenboilerplatenode_p.h
 
     SOURCES += \
-        $$PWD/boilerplate.cpp \
-        $$PWD/boilerplatenode.cpp
+        $$PWD/quickenboilerplate.cpp \
+        $$PWD/quickenboilerplatenode.cpp
 
     RESOURCES += \
         $$PWD/resources.qrc

@@ -19,7 +19,7 @@
 
 #include <QtQuick/QQuickItem>
 
-#include <private/quickenglobal_p.h>
+#include <Quicken/private/quickenglobal_p.h>
 
 class QUICKEN_PRIVATE_EXPORT QuickenBoilerplate : public QQuickItem
 {

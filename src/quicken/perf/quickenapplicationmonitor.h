@@ -20,8 +20,8 @@
 
 #include <QtCore/QList>
 
-#include <Quicken/logger.h>
-#include <Quicken/metrics.h>
+#include <Quicken/quickenlogger.h>
+#include <Quicken/quickenmetrics.h>
 #include <Quicken/quickenglobal.h>
 
 class QuickenApplicationMonitorPrivate;

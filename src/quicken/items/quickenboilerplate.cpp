@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#include "boilerplate_p.h"
+#include "quickenboilerplate_p.h"
 
-#include "boilerplatenode_p.h"
+#include "quickenboilerplatenode_p.h"
 
 QuickenBoilerplate::QuickenBoilerplate(QQuickItem* parent)
     : QQuickItem(parent)

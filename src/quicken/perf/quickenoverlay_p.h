@@ -20,8 +20,8 @@
 
 #include <QtCore/QSize>
 
-#include <Quicken/metrics.h>
-#include <Quicken/private/bitmaptext_p.h>
+#include <Quicken/quickenmetrics.h>
+#include <Quicken/private/quickenbitmaptext_p.h>
 #include <Quicken/private/quickenglobal_p.h>
 
 #if !defined QT_NO_DEBUG

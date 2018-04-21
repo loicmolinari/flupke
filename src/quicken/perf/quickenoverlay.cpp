@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#include "overlay_p.h"
+#include "quickenoverlay_p.h"
 
 #include <unistd.h>
 #include <fcntl.h>

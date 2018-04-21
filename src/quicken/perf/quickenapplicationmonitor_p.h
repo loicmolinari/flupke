@@ -18,7 +18,7 @@
 #ifndef APPLICATIONMONITOR_P_H
 #define APPLICATIONMONITOR_P_H
 
-#include <Quicken/applicationmonitor.h>
+#include <Quicken/quickenapplicationmonitor.h>
 
 #include <QtCore/QTimer>
 #include <QtCore/QThread>
@@ -28,8 +28,8 @@
 #include <QtCore/QRunnable>
 #include <QtCore/QAtomicInteger>
 
-#include <Quicken/private/overlay_p.h>
-#include <Quicken/private/gputimer_p.h>
+#include <Quicken/private/quickenoverlay_p.h>
+#include <Quicken/private/quickengputimer_p.h>
 #include <Quicken/private/quickenglobal_p.h>
 
 class LoggingThread;

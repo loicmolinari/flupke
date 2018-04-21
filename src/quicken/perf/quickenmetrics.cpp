@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#include "metrics_p.h"
+#include "quickenmetrics_p.h"
 
 #include <string.h>
 #include <unistd.h>
@@ -23,8 +23,6 @@
 #include <cstdio>
 
 #include <QtCore/QElapsedTimer>
-
-#include "quickenglobal_p.h"
 
 const int bufferSize = 128;
 const int bufferAlignment = 64;

@@ -21,8 +21,8 @@
 #include <QtCore/QPoint>
 #include <QtCore/QSize>
 
-#include "bitmaptext_p.h"
-#include "bitmaptextfont_p.h"
+#include "quickenbitmaptext_p.h"
+#include "quickenbitmaptextfont_p.h"
 #include "quickenglobal_p.h"
 
 static const GLchar* bitmapTextVertexShaderSource =

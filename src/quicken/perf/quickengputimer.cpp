@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#include "gputimer_p.h"
+#include "quickengputimer_p.h"
 
 #include <QtCore/QElapsedTimer>
 

@@ -18,7 +18,7 @@
 #ifndef METRICS_P_H
 #define METRICS_P_H
 
-#include <Quicken/metrics.h>
+#include <Quicken/quickenmetrics.h>
 
 #include <sys/times.h>
 

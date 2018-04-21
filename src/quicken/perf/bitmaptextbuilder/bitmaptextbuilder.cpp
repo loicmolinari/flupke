@@ -23,7 +23,7 @@
 
 // Input data.
 // FIXME(loicm) Make that command line arguments?
-const char* fileName = "bitmaptextfont_p.h";
+const char* fileName = "../quickenbitmaptextfont_p.h";
 const char* fontFamily = "Ubuntu Mono";  // Must be monospace.
 const int fontPixelSizeMin = 12;  // Must be an even number.
 const int fontPixelSizeMax = 20;  // Must be an even number, higher than fontPixelSizeMin.

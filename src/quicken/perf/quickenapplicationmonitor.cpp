@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#include "applicationmonitor_p.h"
+#include "quickenapplicationmonitor_p.h"
 
 #include <QtCore/QTimer>
 #include <QtGui/QGuiApplication>

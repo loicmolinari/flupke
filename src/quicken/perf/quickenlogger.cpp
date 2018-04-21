@@ -15,12 +15,12 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#include "logger_p.h"
+#include "quickenlogger_p.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QTime>
 
-#include "metrics.h"
+#include "quickenmetrics.h"
 #include "quickenglobal_p.h"
 
 QuickenFileLogger::QuickenFileLogger(const QString& fileName, bool parsable)

@@ -18,12 +18,12 @@
 #ifndef LOGGER_P_H
 #define LOGGER_P_H
 
-#include <Quicken/logger.h>
+#include <Quicken/quickenlogger.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
 
-#include <Quicken/metrics.h>
+#include <Quicken/quickenmetrics.h>
 #include <Quicken/private/quickenglobal_p.h>
 
 class QUICKEN_PRIVATE_EXPORT QuickenFileLoggerPrivate
