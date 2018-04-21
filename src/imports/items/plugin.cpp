@@ -16,7 +16,7 @@
 
 #include <QtQml/qqmlextensionplugin.h>
 
-#include <Quicken/private/magnifier_p.h>
+#include <Quicken/private/boilerplate_p.h>
 
 class QuickenItemsPlugin : public QQmlExtensionPlugin
 {
@@ -30,7 +30,7 @@ public:
     void registerTypes(const char* uri) Q_DECL_OVERRIDE {
         Q_ASSERT(QLatin1String(uri) == QLatin1String("Quicken.Items"));
 
-        qmlRegisterType<QuickenMagnifier>(uri, 0, 1, "Magnifier");
+        qmlRegisterType<QuickenBoilerplate>(uri, 0, 1, "Boilerplate");
     }
 };
 

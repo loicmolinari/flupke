@@ -1,7 +1,7 @@
 import QtQuick 2.3
 import Quicken.Items 0.1
 
-Magnifier {
+Boilerplate {
     width: 800
     height: 450
 

@@ -1,18 +1,18 @@
 HEADERS += \
-    $$PWD/magnifier_p.h \
-    $$PWD/magnifiernode_p.h
+    $$PWD/boilerplate_p.h \
+    $$PWD/boilerplatenode_p.h
 
 SOURCES += \
-    $$PWD/magnifier.cpp \
-    $$PWD/magnifiernode.cpp
+    $$PWD/boilerplate.cpp \
+    $$PWD/boilerplatenode.cpp
 
 RESOURCES += \
     $$PWD/resources.qrc
 
 OTHER_FILES += \
-    $$PWD/shaders/magnifier.frag \
-    $$PWD/shaders/magnifier.vert \
-    $$PWD/shaders/magnifier_core.frag \
-    $$PWD/shaders/magnifier_core.vert \
-    $$PWD/shaders/magnifieropaque.frag \
-    $$PWD/shaders/magnifieropaque_core.frag
+    $$PWD/shaders/boilerplate.frag \
+    $$PWD/shaders/boilerplate.vert \
+    $$PWD/shaders/boilerplate_core.frag \
+    $$PWD/shaders/boilerplate_core.vert \
+    $$PWD/shaders/boilerplateopaque.frag \
+    $$PWD/shaders/boilerplateopaque_core.frag

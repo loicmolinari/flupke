@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#include "magnifiernode_p.h"
+#include "boilerplatenode_p.h"
 
-QuickenMagnifierNode::QuickenMagnifierNode()
+QuickenBoilerplateNode::QuickenBoilerplateNode()
     : QSGGeometryNode()
     , m_geometry(attributeSet(), 4, 4, GL_UNSIGNED_SHORT) {
-    DLOG("creating QuickenMagnifierNode");
+    DLOG("creating QuickenBoilerplateNode");
 
     const quint16 indices[] = { 0, 1, 2, 3 };
     memcpy(m_geometry.indexData(), indices, 4 * sizeof(quint16));
@@ -31,19 +31,19 @@ QuickenMagnifierNode::QuickenMagnifierNode()
     setMaterial(&m_material);
     setOpaqueMaterial(&m_opaqueMaterial);
 
-    qsgnode_set_description(this, QLatin1String("quickenmagnifier"));
+    qsgnode_set_description(this, QLatin1String("quickenboilerplate"));
 }
 
-QuickenMagnifierNode::~QuickenMagnifierNode()
+QuickenBoilerplateNode::~QuickenBoilerplateNode()
 {
-    DLOG("detroying QuickenMagnifierNode");
+    DLOG("detroying QuickenBoilerplateNode");
 }
 
-void QuickenMagnifierNode::preprocess()
+void QuickenBoilerplateNode::preprocess()
 {
 }
 
-void QuickenMagnifierNode::update(float width, float height)
+void QuickenBoilerplateNode::update(float width, float height)
 {
     Vertex* v = reinterpret_cast<Vertex*>(m_geometry.vertexData());
 

@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#include "magnifier_p.h"
+#include "boilerplate_p.h"
 
-#include "magnifiernode_p.h"
+#include "boilerplatenode_p.h"
 
-QuickenMagnifier::QuickenMagnifier(QQuickItem* parent)
+QuickenBoilerplate::QuickenBoilerplate(QQuickItem* parent)
     : QQuickItem(parent)
 {
     setFlag(ItemHasContents);
@@ -27,7 +27,7 @@ QuickenMagnifier::QuickenMagnifier(QQuickItem* parent)
 #endif
 }
  
-QSGNode* QuickenMagnifier::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* data)
+QSGNode* QuickenBoilerplate::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* data)
 {
     Q_UNUSED(data);
 
@@ -39,8 +39,8 @@ QSGNode* QuickenMagnifier::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData
         return nullptr;
     }
 
-    QuickenMagnifierNode* node =
-        oldNode ? static_cast<QuickenMagnifierNode*>(oldNode) : new QuickenMagnifierNode;
+    QuickenBoilerplateNode* node =
+        oldNode ? static_cast<QuickenBoilerplateNode*>(oldNode) : new QuickenBoilerplateNode;
     node->update(w, h);
 
     return node;

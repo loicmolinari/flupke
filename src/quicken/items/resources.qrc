@@ -1,10 +1,10 @@
 <RCC>
     <qresource prefix="/quicken">
-        <file>shaders/magnifier.frag</file>
-        <file>shaders/magnifier.vert</file>
-        <file>shaders/magnifier_core.frag</file>
-        <file>shaders/magnifier_core.vert</file>
-        <file>shaders/magnifieropaque.frag</file>
-        <file>shaders/magnifieropaque_core.frag</file>
+        <file>shaders/boilerplate.frag</file>
+        <file>shaders/boilerplate.vert</file>
+        <file>shaders/boilerplate_core.frag</file>
+        <file>shaders/boilerplate_core.vert</file>
+        <file>shaders/boilerplateopaque.frag</file>
+        <file>shaders/boilerplateopaque_core.frag</file>
     </qresource>
 </RCC>

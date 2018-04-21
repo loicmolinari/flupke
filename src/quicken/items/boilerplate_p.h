@@ -14,27 +14,27 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with Quicken. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef MAGNIFIER_P_H
-#define MAGNIFIER_P_H
+#ifndef BOILERPLATE_P_H
+#define BOILERPLATE_P_H
 
 #include <QtQuick/QQuickItem>
 
 #include <private/quickenglobal_p.h>
 
-class QUICKEN_PRIVATE_EXPORT QuickenMagnifier : public QQuickItem
+class QUICKEN_PRIVATE_EXPORT QuickenBoilerplate : public QQuickItem
 {
     Q_OBJECT
 
 public:
-    QuickenMagnifier(QQuickItem* parent = Q_NULLPTR);
+    QuickenBoilerplate(QQuickItem* parent = Q_NULLPTR);
 
 protected:
     QSGNode* updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData* data) Q_DECL_OVERRIDE;
 
 private:
-    Q_DISABLE_COPY(QuickenMagnifier)
+    Q_DISABLE_COPY(QuickenBoilerplate)
 };
 
-QML_DECLARE_TYPE(QuickenMagnifier)
+QML_DECLARE_TYPE(QuickenBoilerplate)
 
-#endif  // MAGNIFIER_P_H
+#endif  // BOILERPLATE_P_H
