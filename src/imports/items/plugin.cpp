@@ -30,7 +30,9 @@ public:
     void registerTypes(const char* uri) Q_DECL_OVERRIDE {
         Q_ASSERT(QLatin1String(uri) == QLatin1String("Quicken.Items"));
 
+#if !defined(QT_NO_DEBUG)
         qmlRegisterType<QuickenBoilerplate>(uri, 0, 1, "Boilerplate");
+#endif
     }
 };
 
