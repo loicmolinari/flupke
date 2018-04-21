@@ -92,7 +92,7 @@ public:
     }
     int compare(const QSGMaterial* other) const Q_DECL_OVERRIDE {
         Q_UNUSED(other);
-        return 1;  // FIXME
+        return 0;
     }
 
 private:
