@@ -24,7 +24,7 @@ class QuickenPerfPlugin : public QQmlExtensionPlugin
     Q_PLUGIN_METADATA(IID QQmlExtensionInterface_iid)
 
 public:
-    QuickenPerfPlugin(QObject* parent = Q_NULLPTR) : QQmlExtensionPlugin(parent) { }
+    QuickenPerfPlugin(QObject* parent = nullptr) : QQmlExtensionPlugin(parent) { }
     ~QuickenPerfPlugin() { }
 
     void registerTypes(const char* uri) Q_DECL_OVERRIDE {

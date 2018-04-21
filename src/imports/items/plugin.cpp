@@ -24,7 +24,7 @@ class QuickenItemsPlugin : public QQmlExtensionPlugin
     Q_PLUGIN_METADATA(IID QQmlExtensionInterface_iid)
 
 public:
-    QuickenItemsPlugin(QObject* parent = Q_NULLPTR) : QQmlExtensionPlugin(parent) { }
+    QuickenItemsPlugin(QObject* parent = nullptr) : QQmlExtensionPlugin(parent) { }
     ~QuickenItemsPlugin() { }
 
     void registerTypes(const char* uri) Q_DECL_OVERRIDE {
