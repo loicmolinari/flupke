@@ -1,5 +1,5 @@
 TARGET = Quicken
-QT = core-private gui-private quick-private
+QT = core-private quick-private
 
 contains(QT_CONFIG, opengles2) {
     CONFIG += egl
