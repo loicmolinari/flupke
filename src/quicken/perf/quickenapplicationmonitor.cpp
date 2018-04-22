@@ -9,6 +9,7 @@
 #include <QtCore/QTimer>
 #include <QtGui/QGuiApplication>
 #include <QtQuick/QQuickWindow>
+#include <QtQuick/QSGRendererInterface>
 
 // FIXME(loicm) When a monitored window is destroyed and if there's a window
 //     that's not monitored because the max count was reached, enable monitoring
@@ -255,6 +256,9 @@ void QuickenApplicationMonitorPrivate::startMonitoring(QQuickWindow* window)
 {
     DASSERT(window);
     DASSERT(m_loggingThread);
+
+    ASSERT_X(window->rendererInterface()->graphicsApi() == QSGRendererInterface::OpenGL,
+             "Quicken: Scenegraph graphics API other than OpenGL not supported yet.");
 
     if (m_monitorCount < maxMonitors) {
         DASSERT(m_monitors[m_monitorCount] == nullptr);
